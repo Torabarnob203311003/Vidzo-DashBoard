@@ -27,13 +27,14 @@ export default function Sidebar({ user, handleLogout, isOpen, closeSidebar, open
         <aside className={` 
             fixed md:static inset-y-0 left-0 z-50
             w-64 bg-white border-r border-gray-200
+            flex flex-col
             transform transition-transform duration-300 ease-in-out
             ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            max-h-screen
         `}>
-            <div className="p-4  flex items-center justify-between">
+            <div className="p-4 flex items-center justify-between flex-shrink-0 ">
                 <div className="flex items-center gap-0">
-                    <img src={vidzo} alt="VidZo" className="ms-8 w-32 h-28 -mb-6 " />
-                    {/* <span className="text-lg font-bold text-gray-900">VidZo</span> */}
+                    <img src={vidzo} alt="VidZo" className="ms-8 w-32 h-28 -mb-6" />
                 </div>
                 <button 
                     onClick={closeSidebar}
@@ -43,7 +44,7 @@ export default function Sidebar({ user, handleLogout, isOpen, closeSidebar, open
                 </button>
             </div>
 
-            <nav className="p-3  space-y-1 overflow-y-auto h-[calc(100vh-80px)]">
+            <nav className="p-3 space-y-1 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                 <NavLink 
                     to="/dashboard/overview" 
                     className={linkClass}
@@ -104,7 +105,7 @@ export default function Sidebar({ user, handleLogout, isOpen, closeSidebar, open
                             onClick={handleLinkClick}
                         >
                             <span className="text-xs">•</span>
-                            <span>Business Users</span>
+                            <span>Marketplace Item</span>
                         </NavLink>
                         <NavLink 
                             to="/dashboard/approvals/marketplace-item" 
@@ -112,7 +113,7 @@ export default function Sidebar({ user, handleLogout, isOpen, closeSidebar, open
                             onClick={handleLinkClick}
                         >
                             <span className="text-xs">•</span>
-                            <span>Marketplace Item</span>
+                            <span>Business Users</span>
                         </NavLink>
                     </div>
                 )}
