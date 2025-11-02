@@ -49,6 +49,16 @@ export default function Login() {
         navigate("/dashboard/overview");
     };
 
+    // For development: create a test user if none exists
+    React.useEffect(() => {
+        const users = JSON.parse(localStorage.getItem("vd_users") || "{}");
+        if (!users["test@example.com"]) {
+            users["test@example.com"] = { password: "1234" };
+            localStorage.setItem("vd_users", JSON.stringify(users));
+            console.log("created test user", users);
+        }
+    }, []);
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-white p-4">
             <div className="w-full max-w-md">

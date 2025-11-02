@@ -8,8 +8,25 @@ import ForgotPassword from "./Components/ForgotPassword";
 import Otp from "./Components/Otp";
 import ResetPassword from "./Components/ResetPassword";
 import DashboardLayout from "./Components/DashboardLayout";
-import Overview from "./Components/Overview";
-import Details from "./Components/Details";
+import Overview from "./Pages/Overview";
+import UsersStreamerFans from "./Pages/UsersStreamerFans";
+import UsersBusiness from "./Pages/UsersBusiness";
+import ApprovalsBusiness from "./Pages/ApprovalsBusiness";
+import ApprovalsMarketplace from "./Pages/ApprovalsMarketplace";
+import Earnings from "./Pages/Earnings";
+import LiveMonitoring from "./Pages/LiveMonitoring";
+import TopPerformers from "./Pages/TopPerformers";
+import ReportMonitoring from "./Pages/ReportMonitoring";
+import Challenges from "./Pages/Challenges";
+import Marketplace from "./Pages/Marketplace";
+import Categories from "./Pages/Categories";
+import Messages from "./Pages/Messages";
+import Feedback from "./Pages/Feedback";
+import DocsFaq from "./Pages/DocsFaq";
+import DocsPrivacy from "./Pages/DocsPrivacy";
+import DocsTerms from "./Pages/DocsTerms";
+import DocsAbout from "./Pages/DocsAbout";
+import ProfileSettings from "./Pages/ProfileSettings";
 
 export default function App() {
     return (
@@ -30,7 +47,29 @@ export default function App() {
                     }>
                         <Route index element={<Overview />} />
                         <Route path="overview" element={<Overview />} />
-                        <Route path="details" element={<Details />} />
+
+                        <Route path="users/streamer-fans" element={<UsersStreamerFans />} />
+                        <Route path="users/business-users" element={<UsersBusiness />} />
+
+                        <Route path="approvals/business-users" element={<ApprovalsBusiness />} />
+                        <Route path="approvals/marketplace-item" element={<ApprovalsMarketplace />} />
+
+                        <Route path="earnings" element={<Earnings />} />
+                        <Route path="live-monitoring" element={<LiveMonitoring />} />
+                        <Route path="top-performers" element={<TopPerformers />} />
+                        <Route path="report-monitoring" element={<ReportMonitoring />} />
+                        <Route path="challenges" element={<Challenges />} />
+                        <Route path="marketplace" element={<Marketplace />} />
+                        <Route path="categories" element={<Categories />} />
+                        <Route path="messages" element={<Messages />} />
+                        <Route path="feedback" element={<Feedback />} />
+
+                        <Route path="docs/faq" element={<DocsFaq />} />
+                        <Route path="docs/privacy-policy" element={<DocsPrivacy />} />
+                        <Route path="docs/terms" element={<DocsTerms />} />
+                        <Route path="docs/about" element={<DocsAbout />} />
+
+                        <Route path="profile-settings" element={<ProfileSettings />} />
                     </Route>
 
                     <Route path="*" element={<Navigate to="/login" replace />} />
