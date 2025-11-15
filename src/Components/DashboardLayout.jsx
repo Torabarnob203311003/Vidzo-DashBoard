@@ -6,7 +6,8 @@ import Header from "./Header";
 
 export default function DashboardLayout() {
     const { logout, user } = useAuth();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // sidebar visible on desktop, hidden on small screens; no toggle behavior
+    useState(() => true); // keep previous behavior; value not needed
     const [openSections, setOpenSections] = useState({
         users: false,
         approvals: false,
@@ -19,13 +20,7 @@ export default function DashboardLayout() {
         // if you need automatic navigate here, import useNavigate and call navigate("/login")
     };
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-
-    const closeSidebar = () => {
-        setIsSidebarOpen(false);
-    };
+    // toggle/close functions removed — sidebar is static on desktop
 
     const toggleSection = (section) => {
         setOpenSections(prev => ({
@@ -39,27 +34,19 @@ export default function DashboardLayout() {
             <Sidebar 
                 user={user} 
                 handleLogout={handleLogout} 
-                isOpen={isSidebarOpen}
-                closeSidebar={closeSidebar}
                 openSections={openSections}
                 toggleSection={toggleSection}
             />
 
-            {isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-                    onClick={closeSidebar}
-                ></div>
-            )}
+            {/* no overlay/toggle behavior — sidebar is static on desktop */}
 
             <div className="flex-1 flex flex-col">
                 <Header 
                     handleLogout={handleLogout} 
-                    toggleSidebar={toggleSidebar}
                 />
 
-                <main className="p-6">
-                    <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow-sm">
+                <main className="mt-16 md:ml-64 h-[calc(100vh-4rem)] overflow-auto p-6">
+                    <div className="w-full min-h-full">
                         <Outlet />
                     </div>
                 </main>
