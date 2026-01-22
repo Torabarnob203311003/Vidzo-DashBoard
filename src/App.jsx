@@ -1,12 +1,13 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { RequireAuth, RedirectIfAuth } from "./Components/PrivateRoute";
-// import SignUp from "./Components/SignUp"; // removed signup because you don't have it
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Public Pages
 import Login from "./Components/Login";
 import ForgotPassword from "./Components/ForgotPassword";
 import Otp from "./Components/Otp";
 import ResetPassword from "./Components/ResetPassword";
+
+// Dashboard Layout & Pages
 import DashboardLayout from "./Components/DashboardLayout";
 import Overview from "./Pages/Overview";
 import UsersStreamerFans from "./Pages/UsersStreamerFans";
@@ -27,54 +28,65 @@ import DocsPrivacy from "./Pages/DocsPrivacy";
 import DocsTerms from "./Pages/DocsTerms";
 import DocsAbout from "./Pages/DocsAbout";
 import ProfileSettings from "./Pages/ProfileSettings";
+import PrivateRoute from "./Components/PrivateRoute";
 
-export default function App() {
-    return (
-        <AuthProvider>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<Navigate to="/login" replace />} />
-                    {/* signup route removed */}
-                    <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
-                    <Route path="/forgot" element={<ForgotPassword />} />
-                    <Route path="/otp" element={<Otp />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
+// Auth Wrapper
+ // Your auth check component
 
-                    <Route path="/dashboard" element={
-                        <RequireAuth>
-                            <DashboardLayout />
-                        </RequireAuth>
-                    }>
-                        <Route index element={<Overview />} />
-                        <Route path="overview" element={<Overview />} />
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        {/* Redirect root */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-                        <Route path="users/streamer-fans" element={<UsersStreamerFans />} />
-                        <Route path="users/business-users" element={<UsersBusiness />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/otp" element={<Otp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
-                        <Route path="approvals/business-users" element={<ApprovalsBusiness />} />
-                        <Route path="approvals/marketplace-item" element={<ApprovalsMarketplace />} />
+        {/* Protected Dashboard Routes */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Overview />} />
+            <Route path="overview" element={<Overview />} />
 
-                        <Route path="earnings" element={<Earnings />} />
-                        <Route path="live-monitoring" element={<LiveMonitoring />} />
-                        <Route path="top-performers" element={<TopPerformers />} />
-                        <Route path="report-monitoring" element={<ReportMonitoring />} />
-                        <Route path="challenges" element={<Challenges />} />
-                        <Route path="marketplace" element={<Marketplace />} />
-                        <Route path="categories" element={<Categories />} />
-                        <Route path="messages" element={<Messages />} />
-                        <Route path="feedback" element={<Feedback />} />
+            {/* Users */}
+            <Route path="users/streamer-fans" element={<UsersStreamerFans />} />
+            <Route path="users/business-users" element={<UsersBusiness />} />
 
-                        <Route path="docs/faq" element={<DocsFaq />} />
-                        <Route path="docs/privacy-policy" element={<DocsPrivacy />} />
-                        <Route path="docs/terms" element={<DocsTerms />} />
-                        <Route path="docs/about" element={<DocsAbout />} />
+            {/* Approvals */}
+            <Route path="approvals/business-users" element={<ApprovalsBusiness />} />
+            <Route path="approvals/marketplace-item" element={<ApprovalsMarketplace />} />
 
-                        <Route path="profile-settings" element={<ProfileSettings />} />
-                    </Route>
+            {/* Other Pages */}
+            <Route path="earnings" element={<Earnings />} />
+            <Route path="live-monitoring" element={<LiveMonitoring />} />
+            <Route path="top-performers" element={<TopPerformers />} />
+            <Route path="report-monitoring" element={<ReportMonitoring />} />
+            <Route path="challenges" element={<Challenges />} />
+            <Route path="marketplace" element={<Marketplace />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="feedback" element={<Feedback />} />
 
-                    <Route path="*" element={<Navigate to="/login" replace />} />
-                </Routes>
-            </BrowserRouter>
-        </AuthProvider>
-    );
-}
+            {/* Docs */}
+            <Route path="docs/faq" element={<DocsFaq />} />
+            <Route path="docs/privacy-policy" element={<DocsPrivacy />} />
+            <Route path="docs/terms" element={<DocsTerms />} />
+            <Route path="docs/about" element={<DocsAbout />} />
+
+            {/* Profile */}
+            <Route path="profile-settings" element={<ProfileSettings />} />
+          </Route>
+        </Route>
+
+        {/* Catch-all Redirect */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
