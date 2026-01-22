@@ -1,16 +1,27 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
-import { useVerifyOTPMutation } from "@/redux/features/auth/authApi";
+import {
+  useResendOTPMutation,
+  useVerifyOTPMutation,
+} from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setResendOtpEmail,
+  setResetToken,
+} from "@/redux/features/auth/authSlice";
 
 export default function OTPVerification() {
+  const resendOtpEmail = useSelector((state) => state.auth.otpEmail);
+  const dispatch = useDispatch();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [message, setMessage] = useState("");
   const inputRefs = useRef([]);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [verifyOTP, { isLoading }] = useVerifyOTPMutation();
+  const [resendOPT, { isLoading: OTPLoading }] = useResendOTPMutation();
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -38,7 +49,7 @@ export default function OTPVerification() {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, 6);
     const digits = pastedData.match(/\d/g) || [];
-    
+
     const newOtp = [...otp];
     digits.forEach((digit, index) => {
       if (index < 6) {
@@ -53,13 +64,21 @@ export default function OTPVerification() {
 
   const handleVerify = async () => {
     const otpValue = otp.join("");
-    
+
     if (otpValue.length !== 6) {
       setMessage("Please enter complete OTP");
       return;
     }
-   try {
-      const res = await verifyOTP({ otp: otpValue });
+    if (!resendOtpEmail) {
+      toast.error("Something went wrong");
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await verifyOTP({
+        email: resendOtpEmail,
+        oneTimeCode: parseInt(otpValue),
+      });
 
       // Error
       if (res?.error) {
@@ -69,24 +88,39 @@ export default function OTPVerification() {
       // Success
       if (res.data?.success) {
         toast.success(res.data.message);
-
-        navigate("/otp");
+        dispatch(setResetToken(res.data.data.resetToken));
+        navigate("/reset-password");
+        setOtp(["", "", "", "", "", ""]);
+        dispatch(setResendOtpEmail(null));
       }
     } catch (err) {
       toast.error("Something went wrong");
     }
-   
   };
 
-  const handleResend = () => {
-    setMessage("OTP resent to your email ✓");
-    setOtp(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
-    setTimeout(() => setMessage(""), 3000);
+  const handleResend = async () => {
+    if (!resendOtpEmail) return toast.error("Email is required");
+    try {
+      const data = { email: resendOtpEmail };
+      const res = await resendOPT(data);
+
+      // Error
+      if (res?.error) {
+        return toast.error(res.error.data?.message || "Resend failed");
+      }
+
+      // Success
+      if (res.data?.success) {
+        toast.success(res.data.message);
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
   };
 
   const handleBackToLogin = () => {
     setMessage("Redirecting to login...");
+    navigate("/login");
   };
 
   return (
@@ -99,7 +133,9 @@ export default function OTPVerification() {
 
         {/* Subtitle */}
         <p className="text-center text-sm text-gray-500 mb-10">
-          We sent a verification link to<br />your contact email
+          We sent a verification link to
+          <br />
+          your contact email
         </p>
 
         {/* OTP Input Boxes */}

@@ -5,6 +5,8 @@ const initialState = {
   token: null,
   collapsed: false,
   loading: false,
+  otpEmail:null,
+  resetToken:null
 };
 
 export const authSlice = createSlice({
@@ -23,6 +25,12 @@ export const authSlice = createSlice({
     isCollapsed: (state, action) => {
       state.collapsed = action.payload;
     },
+    setResendOtpEmail:(state,action)=>{
+      state.otpEmail = action.payload
+    },
+    setResetToken:(state,action)=>{
+      state.resetToken = action.payload
+    },
     logOut: (state) => {
       state.user = null;
       state.token = null;
@@ -31,7 +39,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { storToken, storUserData, setLoading, isCollapsed, logOut } =
+export const { storToken, storUserData, setLoading, isCollapsed,setResetToken, setResendOtpEmail,logOut } =
   authSlice.actions;
 
 export default authSlice.reducer;

@@ -9,8 +9,12 @@ const baseQuery = fetchBaseQuery({
   baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api/v1`, // Vite env
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
+    const resetToken = getState().auth.resetToken;
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
+    }
+    if(resetToken){
+      headers.set("resetToken",`${resetToken}`)
     }
     return headers;
   },

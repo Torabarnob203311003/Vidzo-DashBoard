@@ -5,9 +5,12 @@ import { useForm } from "react-hook-form";
 import { Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
+import { useDispatch } from "react-redux";
+import { setResendOtpEmail } from "@/redux/features/auth/authSlice";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
   // react-hook-form
   const {
@@ -29,6 +32,7 @@ export default function ForgotPassword() {
 
       // Success
       if (res.data?.success) {
+        dispatch(setResendOtpEmail(data.email))
         toast.success(res.data.message);
 
         navigate("/otp");
@@ -36,9 +40,6 @@ export default function ForgotPassword() {
     } catch (err) {
       toast.error("Something went wrong");
     }
-
-    toast.success("OTP sent! Check console for demo OTP.");
-    navigate("/otp", { state: { email } });
   };
 
   const handleBackToLogin = () => {
@@ -89,7 +90,7 @@ export default function ForgotPassword() {
             type="submit"
             className="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors duration-200"
           >
-            Send OTP
+         {isLoading ? "Loading..." : "Send OTP"}  
           </button>
 
           {/* Back to Login Link */}
@@ -100,7 +101,7 @@ export default function ForgotPassword() {
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft size={16} />
-              {isLoading ? "Loading..." : "Back to login"}
+             Back to login
             </button>
           </div>
         </form>
