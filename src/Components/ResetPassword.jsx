@@ -25,7 +25,7 @@ const [resetPassword,{isLoading}] = useResetPasswordMutation()
     if (data.password !== data.confirmPassword)
       return toast.error("Password are not match");
     try {
-      const res = await resetPassword(data);
+      const res = await resetPassword({newPassword: data.password,confirmPassword: data.confirmPassword});
 
       // Error
       if (res?.error) {

@@ -1,293 +1,256 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
-  LayoutDashboard,
+  LayoutGrid,
   Users,
-  CheckSquare,
-  DollarSign,
+  FileCheck,
+  CircleDollarSign,
   Radio,
-  TrendingUp,
-  Flag,
-  Trophy,
-  Store,
-  FolderTree,
+  Crown,
+  MessageSquareWarning,
+  Swords,
+  ShoppingBag,
+  Shapes,
   MessageSquare,
-  MessageCircleQuestion,
+  MessageSquareHeart,
   FileText,
-  ChevronDown,
-  X,
-  UserCog,
+  Settings,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
 import vidzo from "../assets/Vidzo.jpg";
 import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
 
-export default function Sidebar({ openSections, toggleSection }) {
+const SidebarItem = ({
+  icon,
+  label,
+  to,
+  hasSubmenu,
+  isOpen,
+  onClick,
+  children,
+}) => {
+  return (
+    <>
+      {to ? (
+        <NavLink
+          to={to}
+          className={({ isActive }) =>
+            `flex items-center justify-between px-6 py-3 rounded-xl mx-4 cursor-pointer transition-all duration-200 ${
+              isActive
+                ? "bg-[#FFC12D] text-white shadow-lg shadow-yellow-400/20"
+                : "text-[#64748B] hover:text-[#FFC12D] hover:bg-yellow-50"
+            }`
+          }
+        >
+          <div className="flex items-center gap-3">
+            {React.cloneElement(icon, { size: 20 })}
+            <span className="font-semibold text-[14px]">{label}</span>
+          </div>
+        </NavLink>
+      ) : (
+        <div
+          className={`flex items-center justify-between px-6 py-3 cursor-pointer transition-all duration-200 group text-[#64748B] hover:text-[#FFC12D] hover:bg-yellow-50 rounded-xl mx-4`}
+          onClick={onClick}
+        >
+          <div className="flex items-center gap-3">
+            {React.cloneElement(icon, { size: 20 })}
+            <span className="font-semibold text-[14px]">{label}</span>
+          </div>
+          {hasSubmenu && (
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+            />
+          )}
+        </div>
+      )}
+      {children}
+    </>
+  );
+};
+
+const Sidebar = () => {
+  const [openMenus, setOpenMenus] = React.useState({
+    users: true,
+    approvals: false,
+    docs: false,
+  });
   const dispatch = useDispatch();
-  const linkClass = ({ isActive }) =>
-    "flex items-center gap-3 px-4 py-2.5 rounded text-sm transition-colors " +
-    (isActive
-      ? "bg-yellow-400 text-gray-900 font-medium"
-      : "text-gray-700 hover:bg-gray-100");
-
-  const sectionButtonClass =
-    "flex items-center justify-between w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors";
-
-  const subLinkClass = ({ isActive }) =>
-    "flex items-center gap-3 px-4 py-2 ml-6 text-sm rounded transition-colors " +
-    (isActive
-      ? "bg-yellow-400 text-gray-900 font-medium"
-      : "text-gray-600 hover:bg-gray-100");
-
-  const handleLinkClick = () => {
-    // no toggle behavior — keep sidebar static on desktop
+  const toggleMenu = (menu) => {
+    setOpenMenus((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
   return (
-    <aside
-      className={`
-            fixed left-0 top-0 bottom-0 z-50
-            w-64 bg-white border-r border-gray-200
-            flex flex-col
-            transform transition-transform duration-300 ease-in-out
-            -translate-x-full md:translate-x-0
-        `}
-    >
-      <div className="p-4 flex items-center justify-center flex-shrink-0">
-        <img
-          src={vidzo}
-          alt="VidZo"
-          className="ms-6 w-32 h-32 object-contain block mx-auto"
-        />
+    <div className="w-64 h-full bg-white border-r border-gray-100 flex flex-col overflow-y-auto no-scrollbar fixed left-0 top-0 z-40 shadow-sm">
+      <div className="p-8 flex flex-col items-center">
+        <div className="flex flex-col items-center gap-1 mb-6">
+          <img src={vidzo} alt="VidZo" className="w-16 h-16 object-contain" />
+          <div className="text-center mt-2">
+            <h1 className="text-2xl font-black text-[#1E293B] tracking-tight leading-none">
+              VidZo
+            </h1>
+            <span className="text-[9px] uppercase font-bold text-[#FFC12D] tracking-[0.2em] block">
+              Streaming
+            </span>
+          </div>
+        </div>
       </div>
 
-      <nav className="p-3 space-y-1 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
-        <NavLink
+      <nav className="flex-1 space-y-1 pb-10">
+        <SidebarItem
+          icon={<LayoutGrid />}
+          label="Overview"
           to="/dashboard/overview"
-          className={linkClass}
-          onClick={handleLinkClick}
+        />
+
+        {/* Users Section */}
+        <SidebarItem
+          icon={<Users />}
+          label="User's"
+          hasSubmenu
+          isOpen={openMenus.users}
+          onClick={() => toggleMenu("users")}
         >
-          <LayoutDashboard className="w-4 h-4" />
-          <span>Overview</span>
-        </NavLink>
+          {openMenus.users && (
+            <div className="ml-10 mt-1 space-y-1 animate-in fade-in slide-in-from-top-1">
+              <SidebarItem
+                icon={<div />}
+                label="Streamer & Fans"
+                to="/dashboard/users/streamer-fans"
+              />
+              <SidebarItem
+                icon={<div />}
+                label="Business Users"
+                to="/dashboard/users/business-users"
+              />
+            </div>
+          )}
+        </SidebarItem>
 
-        <button
-          className={sectionButtonClass}
-          onClick={() => toggleSection("users")}
+        {/* Approvals Section */}
+        <SidebarItem
+          icon={<FileCheck />}
+          label="Approvals"
+          hasSubmenu
+          isOpen={openMenus.approvals}
+          onClick={() => toggleMenu("approvals")}
         >
-          <div className="flex items-center gap-3">
-            <Users className="w-4 h-4" />
-            <span>User's</span>
-          </div>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${openSections.users ? "rotate-180" : ""}`}
-          />
-        </button>
+          {openMenus.approvals && (
+            <div className="ml-10 mt-1 space-y-1 animate-in fade-in slide-in-from-top-1">
+              <SidebarItem
+                icon={<div />}
+                label="Business Users"
+                to="/dashboard/approvals/business-users"
+              />
+              <SidebarItem
+                icon={<div />}
+                label="Marketplace Item"
+                to="/dashboard/approvals/marketplace-item"
+              />
+            </div>
+          )}
+        </SidebarItem>
 
-        {openSections.users && (
-          <div className="space-y-1">
-            <NavLink
-              to="/dashboard/users/streamer-fans"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Streamer & Fans</span>
-            </NavLink>
-            <NavLink
-              to="/dashboard/users/business-users"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Business Users</span>
-            </NavLink>
-          </div>
-        )}
-
-        <button
-          className={sectionButtonClass}
-          onClick={() => toggleSection("approvals")}
-        >
-          <div className="flex items-center gap-3">
-            <CheckSquare className="w-4 h-4" />
-            <span>Approvals</span>
-          </div>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${openSections.approvals ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {openSections.approvals && (
-          <div className="space-y-1">
-            <NavLink
-              to="/dashboard/approvals/business-users"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Marketplace Item</span>
-            </NavLink>
-            <NavLink
-              to="/dashboard/approvals/marketplace-item"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Business Users</span>
-            </NavLink>
-          </div>
-        )}
-
-        <NavLink
+        {/* Other Links */}
+        <SidebarItem
+          icon={<CircleDollarSign />}
+          label="Earnings"
           to="/dashboard/earnings"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <DollarSign className="w-4 h-4" />
-          <span>Earnings</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<Radio />}
+          label="Live Monitoring"
           to="/dashboard/live-monitoring"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <Radio className="w-4 h-4" />
-          <span>Live Monitoring</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<Crown />}
+          label="Top Performers"
           to="/dashboard/top-performers"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <TrendingUp className="w-4 h-4" />
-          <span>Top Performers</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<MessageSquareWarning />}
+          label="Report Monitoring"
           to="/dashboard/report-monitoring"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <Flag className="w-4 h-4" />
-          <span>Report Monitoring</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<Swords />}
+          label="Challenges"
           to="/dashboard/challenges"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <Trophy className="w-4 h-4" />
-          <span>Challenges</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<ShoppingBag />}
+          label="Marketplace"
           to="/dashboard/marketplace"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <Store className="w-4 h-4" />
-          <span>Marketplace</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<Shapes />}
+          label="Categories"
           to="/dashboard/categories"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <FolderTree className="w-4 h-4" />
-          <span>Categories</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<MessageSquare />}
+          label="Messages"
           to="/dashboard/messages"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span>Messages</span>
-        </NavLink>
-
-        <NavLink
+        />
+        <SidebarItem
+          icon={<MessageSquareHeart />}
+          label="Feedback"
           to="/dashboard/feedback"
-          className={linkClass}
-          onClick={handleLinkClick}
+        />
+
+        {/* Documentation Section */}
+        <SidebarItem
+          icon={<FileText />}
+          label="Documentation"
+          hasSubmenu
+          isOpen={openMenus.docs}
+          onClick={() => toggleMenu("docs")}
         >
-          <MessageCircleQuestion className="w-4 h-4" />
-          <span>Feedback</span>
-        </NavLink>
+          {openMenus.docs && (
+            <div className="ml-10 mt-1 space-y-1 animate-in fade-in slide-in-from-top-1">
+              <SidebarItem
+                icon={<div />}
+                label="FAQ"
+                to="/dashboard/docs/faq"
+              />
+              <SidebarItem
+                icon={<div />}
+                label="Privacy Policy"
+                to="/dashboard/docs/privacy-policy"
+              />
+              <SidebarItem
+                icon={<div />}
+                label="Terms of Service"
+                to="/dashboard/docs/terms"
+              />
+              <SidebarItem
+                icon={<div />}
+                label="About Us"
+                to="/dashboard/docs/about"
+              />
+            </div>
+          )}
+        </SidebarItem>
 
-        <button
-          className={sectionButtonClass}
-          onClick={() => toggleSection("documentation")}
-        >
-          <div className="flex items-center gap-3">
-            <FileText className="w-4 h-4" />
-            <span>Documentation</span>
-          </div>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${openSections.documentation ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {openSections.documentation && (
-          <div className="space-y-1">
-            <NavLink
-              to="/dashboard/docs/faq"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>FAQ</span>
-            </NavLink>
-            <NavLink
-              to="/dashboard/docs/privacy-policy"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Privacy Policy</span>
-            </NavLink>
-            <NavLink
-              to="/dashboard/docs/terms"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>Terms of Service</span>
-            </NavLink>
-            <NavLink
-              to="/dashboard/docs/about"
-              className={subLinkClass}
-              onClick={handleLinkClick}
-            >
-              <span className="text-xs">•</span>
-              <span>About Us</span>
-            </NavLink>
-          </div>
-        )}
-
-        <NavLink
+        <SidebarItem
+          icon={<Settings />}
+          label="Profile Settings"
           to="/dashboard/profile-settings"
-          className={linkClass}
-          onClick={handleLinkClick}
-        >
-          <UserCog className="w-4 h-4" />
-          <span>Profile Settings</span>
-        </NavLink>
+        />
 
-        <button
-          onClick={() => dispatch(logOut())}
-          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm rounded text-gray-700 hover:bg-gray-100 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Log Out</span>
-        </button>
+        {/* Logout */}
+        <div className="mt-6 border-t border-gray-100 pt-4">
+          <SidebarItem
+            icon={<LogOut />}
+            label="Log Out"
+            onClick={() => dispatch(logOut())}
+          />
+        </div>
       </nav>
-    </aside>
+    </div>
   );
-}
+};
+
+export default Sidebar;

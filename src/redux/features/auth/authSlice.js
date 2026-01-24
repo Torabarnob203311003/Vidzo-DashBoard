@@ -32,6 +32,7 @@ export const authSlice = createSlice({
       state.resetToken = action.payload
     },
     logOut: (state) => {
+      console.log("log")
       state.user = null;
       state.token = null;
       localStorage.removeItem("accessToken");
