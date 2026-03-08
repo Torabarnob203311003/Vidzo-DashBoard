@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Table,
@@ -8,9 +8,12 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table';
+import Pagination from '@/Components/shared/Pagination';
+import { useState } from 'react';
 
 const TopPerformers = () => {
-  const [activeTab, setActiveTab] = React.useState('streamers');
+  const [activeTab, setActiveTab] = useState('streamers');
+  const [page, setPage] = useState(1);
 
   const streamerHeaders = [
     'Rank', 'Streamer Name', 'Stream Title', 'Category', 
@@ -125,22 +128,7 @@ const TopPerformers = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-10 flex items-center justify-end gap-3">
-        <button className="flex items-center gap-2 px-6 py-3 border border-gray-100 bg-white rounded-xl text-sm font-black text-gray-600">
-          <ChevronLeft size={18} /> Previous
-        </button>
-        {[1, 2, 3, '...', 8, 9, 10].map((p, i) => (
-          <button 
-            key={i} 
-            className={`w-11 h-11 rounded-xl text-sm font-black flex items-center justify-center ${p === 1 ? 'bg-[#FFC12D] text-white shadow-xl shadow-yellow-400/20' : 'text-gray-400'}`}
-          >
-            {p}
-          </button>
-        ))}
-        <button className="flex items-center gap-2 px-6 py-3 border border-gray-100 bg-white rounded-xl text-sm font-black text-gray-600">
-          Next <ChevronRight size={18} />
-        </button>
-      </div>
+     <Pagination totalPages={10} page={page} setPage={setPage}></Pagination>
     </div>
   );
 };

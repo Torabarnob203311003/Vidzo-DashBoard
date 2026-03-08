@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { useState } from "react";
-import { useGetCategoriesQuery } from "../services/apiService";
+
 import {
   Search,
   ChevronLeft,
@@ -9,7 +8,6 @@ import {
   Edit2,
   Trash2,
   X,
-  UploadCloud,
 } from "lucide-react";
 
 import {
@@ -22,17 +20,108 @@ import {
 } from "@/components/ui/table";
 import FileUpload from "@/Components/shared/UploadFile";
 import { useForm } from "react-hook-form";
+import {
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetCategoryQuery,
+  useUpdateCategoryMutation,
+} from "@/redux/features/categories/categoriesApi";
+import Loader from "@/Components/shared/Loader";
+import { toast } from "sonner";
 
 const Categories = () => {
-  const { data: categories, isLoading } = useGetCategoriesQuery();
+  const { data: categories, isLoading } = useGetCategoryQuery();
+  const [createCategory, { isLoading: isCreating }] =
+    useCreateCategoryMutation();
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateCategoryMutation();
+
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateCategoryDate, setUpdateCategoryDate] = useState(null);
+
   const {
     control,
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({});
+  } = useForm();
+  const {
+    control: updateControl,
+    register: updateRegister,
+    handleSubmit: updateHandleSubmit,
+    reset: updateReset,
+  } = useForm();
+
+  // REAL SUBMIT
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("image", data.image);
+
+      const res = await createCategory(formData);
+      if (res?.error) {
+        return toast.error(
+          res.error.data?.message || "Category Creation failed",
+        );
+      }
+      if (res.data?.success) {
+        toast.success(res.data.message);
+        reset();
+        setShowAddModal(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
+  const handleDelete = async (id) => {
+    try {
+      const res = await deleteCategory(id);
+      if (res?.error) {
+        return toast.error(
+          res.error.data?.message || "Category Deletion failed",
+        );
+      }
+      if (res.data?.success) {
+        toast.success(res.data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdate = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      if (data.image && data.image instanceof File) {
+        formData.append("image", data.image);
+      }
+      console.log(formData, "formData");
+      console.log(updateCategoryDate._id, "id");
+      const res = await updateCategory({ id: updateCategoryDate._id, data: formData });
+      if (res?.error) {
+        return toast.error(
+          res.error.data?.message || "Category Update failed",
+        );
+      }
+      if (res.data?.success) {
+        toast.success(res.data.message);
+        updateReset();
+        setShowUpdateModal(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  if (isLoading || isDeleting) {
+    return <Loader></Loader>;
+  }
   return (
     <div className="p-10 bg-[#F8FAFC] min-h-screen">
       {/* Header */}
@@ -46,161 +135,162 @@ const Categories = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="mb-8 relative">
-        <Search
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-          size={20}
-        />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="pl-12 pr-6 py-3.5 bg-white border border-gray-100 rounded-2xl w-full max-w-sm focus:outline-none shadow-sm font-medium"
-        />
-      </div>
-
-      {/* Sadcn Table */}
+      {/* Table */}
       <div className="bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto no-scrollbar">
-          <Table>
-            <TableHeader className="bg-white border-b border-gray-50">
+        <Table>
+          <TableBody>
+            {isLoading ? (
               <TableRow>
-                {["ID", "Category Image", "Category Title", "Action"].map(
-                  (header) => (
-                    <TableHead
-                      key={header}
-                      className="px-10 py-8 text-[12px] font-black text-[#1E293B] uppercase tracking-wide"
-                    >
-                      {header}
-                    </TableHead>
-                  ),
-                )}
+                <TableCell colSpan={4} className="text-center py-20">
+                  Loading...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center py-20 text-gray-400 font-bold"
-                  >
-                    Loading...
+            ) : (
+              categories?.data?.map((cat, i) => (
+                <TableRow key={i}>
+                  <TableCell className="px-10 py-6">{cat._id}</TableCell>
+                  <TableCell className="px-10 py-6">
+                    <img src={cat.image} className="w-28 h-16 rounded-xl" />
+                  </TableCell>
+                  <TableCell className="px-10 py-6 font-black">
+                    {cat.title}
+                  </TableCell>
+                  <TableCell className="px-10 py-6">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => {
+                          setShowUpdateModal(true);
+                          setUpdateCategoryDate(cat);
+                        }}
+                        className="text-gray-800"
+                      >
+                        <Edit2 size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat._id)}
+                        className="text-red-500"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ) : (
-                categories?.map((cat, i) => (
-                  <TableRow
-                    key={i}
-                    className="hover:bg-gray-50/30 transition-colors"
-                  >
-                    <TableCell className="px-10 py-6 text-sm font-bold text-gray-500">
-                      0001
-                    </TableCell>
-                    <TableCell className="px-10 py-6">
-                      <img
-                        src={`https://picsum.photos/120/80?seed=cat${i}`}
-                        className="w-28 h-16 rounded-xl object-cover"
-                        alt=""
-                      />
-                    </TableCell>
-                    <TableCell className="px-10 py-6 text-sm font-black text-[#1E293B]">
-                      {cat.name}
-                    </TableCell>
-                    <TableCell className="px-10 py-6">
-                      <div className="flex items-center gap-4">
-                        <button className="text-gray-800">
-                          <Edit2 size={20} />
-                        </button>
-                        <button className="text-red-500">
-                          <Trash2 size={20} />
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <div className="mt-10 flex items-center justify-end gap-3">
-        <button className="flex items-center gap-2 px-6 py-3 border border-gray-100 bg-white rounded-xl text-sm font-black text-gray-600">
-          <ChevronLeft size={18} /> Previous
-        </button>
-        {[1, 2, 3, "...", 8, 9, 10].map((p, i) => (
-          <button
-            key={i}
-            className={`w-11 h-11 rounded-xl text-sm font-black flex items-center justify-center ${
-              p === 1
-                ? "bg-[#FFC12D] text-white shadow-xl shadow-yellow-400/20"
-                : "text-gray-400"
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-        <button className="flex items-center gap-2 px-6 py-3 border border-gray-100 bg-white rounded-xl text-sm font-black text-gray-600">
-          Next <ChevronRight size={18} />
-        </button>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-xl rounded-[40px] shadow-2xl p-10 relative animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40">
+          <div className="bg-white w-full max-w-xl rounded-[40px] p-10 relative">
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-8 right-8 p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+              className="absolute top-8 right-8"
             >
-              <X size={32} strokeWidth={2.5} />
+              <X size={32} />
             </button>
 
-            <h3 className="text-3xl font-black text-[#1E293B] mb-10">
-              Add New Category
-            </h3>
+            <h3 className="text-3xl font-black mb-10">Add New Category</h3>
 
-            <form
-              className="space-y-8"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setShowAddModal(false);
-              }}
-            >
+            <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-3">
-                <label className="text-[15px] font-black text-gray-800 ml-1">
-                  Category Title
-                </label>
+                <label className="font-black">Category Title</label>
                 <input
+                  {...register("title", {
+                    required: "Title required",
+                  })}
                   type="text"
                   placeholder="Enter Title"
-                  className="w-full bg-[#F0F0F0] border-none rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 focus:ring-0 placeholder:text-gray-400"
-                  required
+                  className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4"
                 />
+                {errors.title && (
+                  <p className="text-red-500">{errors.title.message}</p>
+                )}
               </div>
+
               <FileUpload
-                name="url"
+                name="image"
                 control={control}
                 caption=" Upload Image"
                 accept="image/*"
                 maxSize={100 * 1024 * 1024}
-                error={errors.url?.message}
-                onFileSelect={(file) => console.log("File selected:", file)}
+                error={errors.image?.message}
+                rules={{ required: "Image required" }}
               />
 
               <div className="flex gap-4 pt-6">
                 <button
                   type="submit"
-                  className="flex-1 py-4 bg-[#FFC12D] text-white text-lg font-black rounded-2xl shadow-xl shadow-yellow-400/20 hover:bg-[#FFB800] transition-all"
+                  disabled={isCreating}
+                  className="flex-1 py-4 bg-[#FFC12D] text-white rounded-2xl"
                 >
-                  Add
+                  {isCreating ? "Saving..." : "Add"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-4 bg-white border-2 border-[#1E293B] text-[#1E293B] text-lg font-black rounded-2xl hover:bg-gray-50 transition-all"
+                  className="flex-1 py-4 border-2 rounded-2xl"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Update Modal */}
+      {showUpdateModal && updateCategoryDate && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40">
+          <div className="bg-white w-full max-w-xl rounded-[40px] p-10 relative">
+            <button
+              onClick={() => setShowUpdateModal(false)}
+              className="absolute top-8 right-8"
+            >
+              <X size={32} />
+            </button>
+
+            <h3 className="text-3xl font-black mb-10">Update Category</h3>
+
+            <form
+              className="space-y-8"
+              onSubmit={updateHandleSubmit(handleUpdate)}
+            >
+              <div className="space-y-3">
+                <label className="font-black">Category Title</label>
+                <input
+                  {...updateRegister("title", {})}
+                  type="text"
+                  defaultValue={updateCategoryDate.title}
+                  placeholder="Enter Title"
+                  className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4"
+                />
+              </div>
+
+              <FileUpload
+                name="image"
+                control={updateControl}
+                caption=" Update Image"
+                accept="image/*"
+                maxSize={100 * 1024 * 1024}
+                error={errors.image?.message}
+                defaultValue={updateCategoryDate.image}
+              />
+
+              <div className="flex gap-4 pt-6">
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="flex-1 py-4 bg-[#FFC12D] text-white rounded-2xl"
+                >
+                  {isUpdating ? "Saving..." : "Update"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-4 border-2 rounded-2xl"
                 >
                   Cancel
                 </button>

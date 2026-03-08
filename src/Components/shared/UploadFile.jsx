@@ -14,6 +14,7 @@ export default function FileUpload({
   disabled = false,
   error,
   rules,
+  defaultValue = null,
 }) {
   return (
     <Controller
@@ -30,6 +31,7 @@ export default function FileUpload({
           onFileSelect={onFileSelect}
           disabled={disabled}
           error={error}
+          defaultValue={defaultValue}
         />
       )}
     />
@@ -45,6 +47,7 @@ function FileUploadContent({
   onFileSelect,
   disabled,
   error,
+  defaultValue = null,
 }) {
   const inputRef = useRef(null)
   const [fileName, setFileName] = useState(
@@ -63,6 +66,7 @@ function FileUploadContent({
       setFileName(file.name)
       onChange(file)
       onFileSelect?.(file)
+      defaultValue = null
     } else {
       setFileName(null)
       onChange(null)
@@ -98,6 +102,11 @@ function FileUploadContent({
           {fileName && (
             <p className="text-sm text-green-600 font-semibold mt-1">
               {fileName}
+            </p>
+          )}
+          {(defaultValue && !fileName) && (
+            <p className="text-sm text-green-600 font-semibold mt-1">
+              {defaultValue.split('-').pop()}
             </p>
           )}
         </div>

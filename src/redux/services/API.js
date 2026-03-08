@@ -26,7 +26,7 @@ const baseQueryWithRefreshToken = async (args, api, extraOptions) => {
 
   // 404 error handling
   if (result.error?.status === 404) {
-    toast.error("User not found");
+    // toast.error("User not found");
   }
 
   // 401 error: attempt refresh
@@ -60,7 +60,7 @@ const baseQueryWithRefreshToken = async (args, api, extraOptions) => {
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithRefreshToken,
-  tagTypes: ["getUser", "getAppointments", "getContents", "getAds"],
+  tagTypes: ["getUser", "getCategories", "getProfile", "getAds"],
   endpoints: () => ({
   }),
 });
