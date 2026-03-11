@@ -13,9 +13,9 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }
-    if(resetToken){
-      headers.set("resetToken",`${resetToken}`)
-    }
+    // if(resetToken){
+    //   headers.set("resetToken",`${resetToken}`)
+    // }
     return headers;
   },
 });
