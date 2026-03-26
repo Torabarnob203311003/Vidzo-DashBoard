@@ -104,9 +104,13 @@ const Sidebar = () => {
           label="Overview"
           to="/dashboard/overview"
         />
-
-        {/* Users Section */}
         <SidebarItem
+          icon={<Users />}
+          label="Users"
+          to="/dashboard/users/streamer-fans"
+        />
+        {/* Users Section */}
+        {/* <SidebarItem
           icon={<Users />}
           label="User's"
           hasSubmenu
@@ -127,10 +131,10 @@ const Sidebar = () => {
               />
             </div>
           )}
-        </SidebarItem>
+        </SidebarItem> */}
 
         {/* Approvals Section */}
-        <SidebarItem
+        {/* <SidebarItem
           icon={<FileCheck />}
           label="Approvals"
           hasSubmenu
@@ -151,7 +155,7 @@ const Sidebar = () => {
               />
             </div>
           )}
-        </SidebarItem>
+        </SidebarItem> */}
 
         {/* Other Links */}
         <SidebarItem
@@ -179,11 +183,11 @@ const Sidebar = () => {
           label="Challenges"
           to="/dashboard/challenges"
         />
-        <SidebarItem
+        {/* <SidebarItem
           icon={<ShoppingBag />}
           label="Marketplace"
           to="/dashboard/marketplace"
-        />
+        /> */}
         <SidebarItem
           icon={<Shapes />}
           label="Categories"

@@ -3,7 +3,7 @@ import { baseApi } from "@/redux/services/API";
 const messageApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     sendMessage: builder.mutation({
-      query: ({id,messageData}) => {
+      query: ({ id, messageData }) => {
         return {
           url: `admin/support/${id}/message`,
           method: "POST",
@@ -31,11 +31,10 @@ const messageApi = baseApi.injectEndpoints({
       providesTags: ["getMessages"],
     }),
     makeReadAllMassage: builder.mutation({
-      query: ( id ) => {
+      query: ({conversationId}) => {
         return {
-          url: `admin/support/${id}/mark-read`,
+          url: `admin/support/${conversationId}/mark-read`,
           method: "PATCH",
-        
         };
       },
     }),
@@ -51,4 +50,9 @@ const messageApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useCreateCategoryMutation, useGetAllConversationsQuery,useGetAllMessagesOfConversationQuery,useMakeReadAllMassageMutation,useSendMessageMutation } = messageApi;
+export const {
+  useGetAllConversationsQuery,
+  useGetAllMessagesOfConversationQuery,
+  useMakeReadAllMassageMutation,
+  useSendMessageMutation,
+} = messageApi;

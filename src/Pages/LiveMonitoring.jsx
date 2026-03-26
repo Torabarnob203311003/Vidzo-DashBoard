@@ -1,9 +1,9 @@
-import React from "react";
+import { useState } from "react";
 import { Search, Eye, User, TrendingUp, Play } from "lucide-react";
-
-import { useGetLiveStreamsQuery } from "../services/apiService";
-
 import { Link } from "react-router-dom";
+import Loader from "@/Components/shared/Loader";
+import { toast } from "sonner";
+import { useGetLiveStreamsQuery } from "@/redux/features/streamMonitoring/streamMonitoringApi";
 
 const MonitoringCard = ({ title, value, trend, icon }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex flex-col gap-2">
@@ -19,7 +19,26 @@ const MonitoringCard = ({ title, value, trend, icon }) => (
 );
 
 const LiveMonitoring = () => {
-  const { data: streams, isLoading } = useGetLiveStreamsQuery();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // RTK Query like Code One
+  const { data: streamsData, isLoading, error } = useGetLiveStreamsQuery({
+    searchTerm,
+  });
+
+  if (error) {
+    toast.error("Failed to load live monitoring data");
+  }
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  const streams = streamsData?.data?.streams || [];
+
+  const activeStreamsCount = streamsData?.data?.activeStreamsCount || 0;
+  const totalViewers = streamsData?.data?.totalViewers || 0;
+  const peakConcurrent = streamsData?.data?.peakConcurrent || 0;
 
   return (
     <div className="p-10">
@@ -27,32 +46,38 @@ const LiveMonitoring = () => {
         <h2 className="text-2xl font-bold text-[#1E293B] mb-8">
           Live Monitoring
         </h2>
+
+        {/* Cards (now using API data) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <MonitoringCard
             title="Currently Live"
-            value="1,247"
+            value={activeStreamsCount}
             trend="Across all categories"
             icon={<Play size={16} className="text-red-500" />}
           />
+
           <MonitoringCard
             title="Total Viewers"
-            value="342,891"
-            trend="+12% from yesterday"
+            value={totalViewers.toLocaleString()}
+            trend="Live audience right now"
             icon={<User size={16} />}
           />
+
           <MonitoringCard
             title="Peak Concurrent"
-            value="89,234"
-            trend="At 8:00 PM today"
+            value={peakConcurrent.toLocaleString()}
+            trend="Highest concurrent viewers"
             icon={<TrendingUp size={16} />}
           />
         </div>
       </div>
 
+      {/* Search */}
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-xl font-bold text-[#1E293B]">
           Real-time overview of active streams
         </h3>
+
         <div className="relative">
           <Search
             className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -61,11 +86,13 @@ const LiveMonitoring = () => {
           <input
             type="text"
             placeholder="Search by user name..."
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-12 pr-6 py-3 border border-gray-100 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-yellow-400/20"
           />
         </div>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -90,43 +117,51 @@ const LiveMonitoring = () => {
                 ))}
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-50">
-              {isLoading ? (
+              {streams.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-20 text-gray-400">
-                    Loading active streams...
+                    No active streams
                   </td>
                 </tr>
               ) : (
-                streams?.map((stream) => (
+                streams.map((stream) => (
                   <tr
-                    key={stream.id}
+                    key={stream._id}
                     className="hover:bg-gray-50/50 transition-colors"
                   >
                     <td className="px-6 py-5 text-sm font-medium text-gray-500">
-                      {stream.id}
+                      {stream._id}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-bold text-gray-800">
-                      {stream.name}
+                      {stream.streamer?.name}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-medium text-gray-500 max-w-xs truncate">
                       {stream.title}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-medium text-gray-500">
-                      {stream.category}
+                      {stream.category?._id}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-bold text-gray-800">
-                      {stream.currentViewers.toLocaleString()}
+                      {stream.currentViewerCount?.toLocaleString()}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-medium text-gray-500">
-                      {stream.peakViews.toLocaleString()}
+                      {stream.peakViewerCount?.toLocaleString()}
                     </td>
+
                     <td className="px-6 py-5 text-sm font-bold text-gray-800 text-center">
-                      {stream.flagged}
+                      {stream.flaggedCount}
                     </td>
+
                     <td className="px-6 py-5">
                       <Link
-                        to={`/dashboard/live-stream/${stream.id}`}
+                        to={`/dashboard/live-stream/${stream._id}`}
                         className="p-1.5 text-yellow-500 hover:bg-yellow-50 rounded-lg transition-colors"
                       >
                         <Eye size={18} />

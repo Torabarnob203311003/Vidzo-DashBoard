@@ -49,7 +49,7 @@ const baseQueryWithRefreshToken = async (args, api, extraOptions) => {
     //     api.dispatch(logOut());
     //   }
     // } catch (error) {
-      api.dispatch(logOut());
+    api.dispatch(logOut());
     // }
   }
 
@@ -61,6 +61,16 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithRefreshToken,
   tagTypes: ["getUser", "getCategories", "getProfile", "getAds"],
-  endpoints: () => ({
+  endpoints: (builder) => ({
+    getDashboard: builder.query({
+      query: () => {
+        return {
+          url: `admin/overview`,
+          method: "GET",
+        };
+      },
+      providesTags: ["getDashboard"],
+    }),
   }),
 });
+export const { useGetDashboardQuery } = baseApi;

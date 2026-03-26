@@ -64,7 +64,7 @@ const App = () => {
             {/* Other Pages */}
             <Route path="earnings" element={<Earnings />} />
             <Route path="live-monitoring" element={<LiveMonitoring />} />
-            <Route path="live-stream/:id" element={<LiveStreamView />} />
+            <Route path="live-monitoring/:id" element={<LiveStreamView />} />
             <Route path="top-performers" element={<TopPerformers />} />
             <Route path="report-monitoring" element={<ReportMonitoring />} />
             <Route path="challenges" element={<Challenges />} />
