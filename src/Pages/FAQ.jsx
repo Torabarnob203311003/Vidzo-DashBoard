@@ -119,41 +119,45 @@ const FAQ = () => {
       </div>
 
       {/* FAQ List */}
-      <div className="space-y-6">
-        {faqs?.data?.map((f) => (
-          <div
-            key={f._id}
-            className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
-          >
-            <h3 className="text-xl font-black text-[#1E293B] mb-4">
-              {f.question}
-            </h3>
+      {faqs?.data?.length > 0 ? (
+        <div className="space-y-6">
+          {faqs?.data?.map((f) => (
+            <div
+              key={f._id}
+              className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
+            >
+              <h3 className="text-xl font-black text-[#1E293B] mb-4">
+                {f.question}
+              </h3>
 
-            <p className="text-gray-500 font-bold leading-relaxed mb-6">
-              {f.answer}
-            </p>
+              <p className="text-gray-500 font-bold leading-relaxed mb-6">
+                {f.answer}
+              </p>
 
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-50">
-              <button
-                onClick={() => openEditModal(f)}
-                className="flex items-center gap-2 px-6 py-2 bg-white border border-yellow-400 text-yellow-500 rounded-lg text-sm font-black hover:bg-yellow-50 transition-colors"
-              >
-                <Edit2 size={16} /> Edit
-              </button>
+              <div className="flex justify-end gap-3 pt-6 border-t border-gray-50">
+                <button
+                  onClick={() => openEditModal(f)}
+                  className="flex items-center gap-2 px-6 py-2 bg-white border border-yellow-400 text-yellow-500 rounded-lg text-sm font-black hover:bg-yellow-50 transition-colors"
+                >
+                  <Edit2 size={16} /> Edit
+                </button>
 
-              <button
-                onClick={() => {
-                  setDeleteFaqId(f._id);
-                  setShowDeleteModal(true);
-                }}
-                className="flex items-center gap-2 px-6 py-2 bg-white border border-red-400 text-red-500 rounded-lg text-sm font-black hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={16} /> Delete
-              </button>
+                <button
+                  onClick={() => {
+                    setDeleteFaqId(f._id);
+                    setShowDeleteModal(true);
+                  }}
+                  className="flex items-center gap-2 px-6 py-2 bg-white border border-red-400 text-red-500 rounded-lg text-sm font-black hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-center py-20">No FAQs found.</p>
+      )}
 
       {/* MODAL */}
       {showModal && (
