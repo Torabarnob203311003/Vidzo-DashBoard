@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
 import {
   AreaChart,
   Area,
@@ -21,6 +21,7 @@ import { Users, DollarSign, Radio, ChevronDown } from "lucide-react";
 
 import Loader from "@/Components/shared/Loader";
 import { useGetDashboardQuery } from "@/redux/services/API";
+import { YearPicker } from "@/Components/shared/YearPicker";
 
 const StatsCard = ({ title, value, trend, icon }) => (
   <div className="bg-white p-6 rounded-xl border border-gray-100 flex justify-between items-start">
@@ -41,7 +42,8 @@ const StatsCard = ({ title, value, trend, icon }) => (
 );
 
 const DashboardOverview = () => {
-  const { data: stats, isLoading } = useGetDashboardQuery();
+   const [year, setYear] = useState(undefined);
+  const { data: stats, isLoading } = useGetDashboardQuery({ year });
 
   if (isLoading) {
     return <Loader />;
@@ -101,7 +103,7 @@ console.log(stats)
           icon={<Users />}
         />
         <StatsCard
-          title=" Users"
+          title="Active Users"
           value={cards?.regularUsers?.displayValue || "0"}
           trend={cards?.regularUsers?.growthLabel || ""}
           icon={<Users />}
@@ -127,9 +129,7 @@ console.log(stats)
             <h3 className="text-xl font-black text-[#1E293B]">
               User Overview
             </h3>
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#FFC12D]/10 text-[#FFC12D] rounded-xl text-xs font-black cursor-pointer">
-              Regular <ChevronDown size={14} />
-            </div>
+          
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -176,8 +176,8 @@ console.log(stats)
             <h3 className="text-xl font-black text-[#1E293B]">
               Earning Overview
             </h3>
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#FFC12D]/10 text-[#FFC12D] rounded-xl text-xs font-black cursor-pointer">
-              {charts?.earningOverview?.year} <ChevronDown size={14} />
+            <div className="flex items-center gap-2 px-4 py-2  text-[#FFC12D] rounded-xl text-xs font-black cursor-pointer">
+              <YearPicker  year={year}  setYear={setYear}/>
             </div>
           </div>
           <div className="h-[300px]">

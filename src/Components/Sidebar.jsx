@@ -107,7 +107,7 @@ const Sidebar = () => {
         <SidebarItem
           icon={<Users />}
           label="Users"
-          to="/dashboard/users/streamer-fans"
+          to="/dashboard/users"
         />
         {/* Users Section */}
         {/* <SidebarItem

@@ -2,110 +2,49 @@ import { baseApi } from "@/redux/services/API";
 
 const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProxy: builder.query({
-      query: (userId) => {
+    getUsers: builder.query({
+      query: (params) => {
         return {
-          url: "getAllProxyset/" + userId,
+          url: `admin/users/streamers`,
           method: "GET",
+          params,
         };
       },
+      providesTags: ["getUsers"],
     }),
-
-    getUser: builder.query({
+    getUserDetails: builder.query({
       query: (id) => {
         return {
-          url: `search`,
-          method: "GET",
-          params: { searchTerm: id },
-        };
-      },
-    }),
-    getUserGrantors: builder.query({
-      query: () => {
-        return {
-          url: `my-proxy-users/`,
+          url: `admin/users/${id}`,
           method: "GET",
         };
       },
+      providesTags: ["getUsers"],
     }),
-    getUserGrantorData: builder.query({
-      query: (id) => {
-        return {
-          url: `proxyset-call-api/${id}`,
-          method: "GET",
-        };
-      },
-    }),
-
-    setProxy: builder.mutation({
-      query: (id) => {
-        return {
-          url: `proxyset/${id}`,
-          method: "POST",
-        };
-      },
-    }),
-
     blockUser: builder.mutation({
       query: (id) => {
         return {
-          url: `users/block/${id}`,
-          method: "DELETE",
+          url: `admin/users/${id}/block`,
+          method: "PATCH",
         };
       },
+      invalidatesTags: ["getUsers"],
     }),
-
-    getAllUsers: builder.query({
-      query: (query) => {
-        return {
-          url: "users",
-          method: "GET",
-          params: query,
-        };
-      },
-    }),
-
-    getPlans: builder.query({
-      query: () => {
-        return {
-          url: "packages",
-          method: "GET",
-        };
-      },
-    }),
-    createCheckoutSession: builder.mutation({
+    unblockUser: builder.mutation({
       query: (id) => {
         return {
-          url: `create-checkout-session/${id}`,
-          method: "POST",
+          url: `admin/users/${id}/unblock`,
+          method: "PATCH",
         };
       },
-    }),
-
-    sendMessage: builder.mutation({
-      query: (body) => {
-        return {
-          url: `create-report`,
-          method: "POST",
-          body,
-        };
-      },
+      invalidatesTags: ["getUsers"],
     }),
   }),
 });
 
 export const {
-  useCreateCheckoutSessionMutation,
-  useGetPlansQuery,
-
-  useSendMessageMutation,
-
-  useGetProxyQuery,
-  useGetAllUsersQuery,
+  useGetUsersQuery,
+  useGetUserDetailsQuery,
   useBlockUserMutation,
-  useSetProxyMutation,
-  useGetUserQuery,
-  useGetAdminStatsQuery,
-  useGetUserGrantorsQuery,
-  useGetUserGrantorDataQuery,
+  useUnblockUserMutation,
 } = userApi;

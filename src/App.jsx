@@ -10,20 +10,16 @@ import ResetPassword from "./Components/ResetPassword";
 // Dashboard Layout & Pages
 import DashboardLayout from "./Components/DashboardLayout";
 import UsersStreamerFans from "./Pages/UsersStreamerFans";
-import ApprovalsBusiness from "./Pages/ApprovalsBusiness";
-import ApprovalsMarketplace from "./Pages/ApprovalsMarketplace";
 import Earnings from "./Pages/Earnings";
 import LiveMonitoring from "./Pages/LiveMonitoring";
 import TopPerformers from "./Pages/TopPerformers";
 import ReportMonitoring from "./Pages/ReportMonitoring";
 import Challenges from "./Pages/Challenges";
-import Marketplace from "./Pages/Marketplace";
 import Categories from "./Pages/Categories";
 import Messages from "./Pages/Messages";
 import Feedback from "./Pages/Feedback";
 import ProfileSettings from "./Pages/ProfileSettings";
 import PrivateRoute from "./Components/PrivateRoute";
-import BusinessUsers from "./Pages/UsersBusiness";
 import DashboardOverview from "./Pages/DashboardOverview";
 import FAQ from "./Pages/FAQ";
 import LiveStreamView from "./Pages/LiveStreamView";
@@ -54,12 +50,7 @@ const App = () => {
             <Route path="overview" element={<DashboardOverview />} />
 
             {/* Users */}
-            <Route path="users/streamer-fans" element={<UsersStreamerFans />} />
-            <Route path="users/business-users" element={<BusinessUsers />} />
-
-            {/* Approvals */}
-            <Route path="approvals/business-users" element={<ApprovalsBusiness />} />
-            <Route path="approvals/marketplace-item" element={<ApprovalsMarketplace />} />
+            <Route path="users" element={<UsersStreamerFans />} />
 
             {/* Other Pages */}
             <Route path="earnings" element={<Earnings />} />
@@ -68,7 +59,6 @@ const App = () => {
             <Route path="top-performers" element={<TopPerformers />} />
             <Route path="report-monitoring" element={<ReportMonitoring />} />
             <Route path="challenges" element={<Challenges />} />
-            <Route path="marketplace" element={<Marketplace />} />
             <Route path="categories" element={<Categories />} />
             <Route path="messages" element={<Messages />} />
             <Route path="feedback" element={<Feedback />} />

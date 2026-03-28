@@ -63,10 +63,11 @@ export const baseApi = createApi({
   tagTypes: ["getUser", "getCategories", "getProfile", "getAds"],
   endpoints: (builder) => ({
     getDashboard: builder.query({
-      query: () => {
+      query: (params) => {
         return {
           url: `admin/overview`,
           method: "GET",
+          params,
         };
       },
       providesTags: ["getDashboard"],
