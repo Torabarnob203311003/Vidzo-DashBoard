@@ -84,15 +84,15 @@ const ReportMonitoring = () => {
   };
 
   return (
-    <div className="p-10 bg-[#F8FAFC]">
-      <div className="flex justify-between items-center mb-10">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-10">
         <h2 className="text-3xl font-black text-[#1E293B]">
           Report Monitoring
         </h2>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {stats.map((s, i) => (
           <div
             key={i}
@@ -107,7 +107,7 @@ const ReportMonitoring = () => {
       </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         <div className="bg-[#FFF8E6] p-6 rounded-2xl border border-yellow-100 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-yellow-500 shadow-sm">
             {dashboard?.statusSummary?.pendingReports || 0}

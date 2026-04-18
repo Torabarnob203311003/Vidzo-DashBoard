@@ -26,7 +26,7 @@ const Feedback = () => {
   };
 
   return (
-    <div className="p-10 bg-[#F8FAFC]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-3xl font-black text-[#1E293B]">Feedback</h2>

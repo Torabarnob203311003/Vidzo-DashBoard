@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -22,6 +22,10 @@ import { Users, DollarSign, Radio, ChevronDown } from "lucide-react";
 import Loader from "@/Components/shared/Loader";
 import { useGetDashboardQuery } from "@/redux/services/API";
 import { YearPicker } from "@/Components/shared/YearPicker";
+import { toast } from "sonner";
+import { useGetProfileQuery } from "@/redux/features/profile/profileApi";
+import { useDispatch } from "react-redux";
+import { storProfile } from "@/redux/features/auth/authSlice";
 
 const StatsCard = ({ title, value, trend, icon }) => (
   <div className="bg-white p-6 rounded-xl border border-gray-100 flex justify-between items-start">
@@ -42,13 +46,27 @@ const StatsCard = ({ title, value, trend, icon }) => (
 );
 
 const DashboardOverview = () => {
-   const [year, setYear] = useState(undefined);
+  const [year, setYear] = useState(undefined);
+  const dispatch = useDispatch();
   const { data: stats, isLoading } = useGetDashboardQuery({ year });
-
-  if (isLoading) {
+  const { data: profileData, isLoading: isProfileLoading } =
+    useGetProfileQuery(undefined);
+  useEffect(() => {
+    if (profileData?.data) {
+      dispatch(
+        storProfile({
+          name: profileData.data.name,
+          email: profileData.data.email,
+          image: profileData.data.image,
+          role: profileData.data.role,
+        }),
+      );
+    }
+  }, [profileData]);
+  if (isLoading || isProfileLoading) {
     return <Loader />;
   }
-console.log(stats)
+  console.log(profileData);
   const cards = stats?.data?.cards;
   const charts = stats?.data?.charts;
 
@@ -70,26 +88,18 @@ console.log(stats)
       streams: charts?.dailyActivityPattern?.series?.[0]?.data?.[index] || 0,
       users: charts?.dailyActivityPattern?.series?.[1]?.data?.[index] || 0,
     })) || [];
-    console.log(charts)
+  console.log(charts);
   const PieData =
     charts?.geographicDistribution?.items?.map((item, index) => ({
       name: item.region,
       value: item.percentage,
-      color: [
-        "#A78BFA",
-        "#6EE7B7",
-        "#FCD34D",
-        "#FB923C",
-        "#93C5FD",
-      ][index],
+      color: ["#A78BFA", "#6EE7B7", "#FCD34D", "#FB923C", "#93C5FD"][index],
     })) || [];
 
   return (
-    <div className="p-10 bg-[#F8FAFC]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
       <div className="mb-10">
-        <h2 className="text-3xl font-black text-[#1E293B]">
-          Hello Austin 🌞
-        </h2>
+        <h2 className="text-3xl font-black text-[#1E293B]">Hello Austin</h2>
         <p className="text-gray-500 font-bold text-[15px] mt-1">
           Welcome back! Here's what's happening on your platform.
         </p>
@@ -108,7 +118,7 @@ console.log(stats)
           trend={cards?.regularUsers?.growthLabel || ""}
           icon={<Users />}
         />
-      
+
         <StatsCard
           title="Platform Earnings"
           value={cards?.platformEarnings?.displayValue || "$0"}
@@ -126,10 +136,7 @@ console.log(stats)
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
         <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center mb-12">
-            <h3 className="text-xl font-black text-[#1E293B]">
-              User Overview
-            </h3>
-          
+            <h3 className="text-xl font-black text-[#1E293B]">User Overview</h3>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -177,7 +184,7 @@ console.log(stats)
               Earning Overview
             </h3>
             <div className="flex items-center gap-2 px-4 py-2  text-[#FFC12D] rounded-xl text-xs font-black cursor-pointer">
-              <YearPicker  year={year}  setYear={setYear}/>
+              <YearPicker year={year} setYear={setYear} />
             </div>
           </div>
           <div className="h-[300px]">

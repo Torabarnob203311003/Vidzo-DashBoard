@@ -30,7 +30,7 @@ const fileToBase64 = (file) =>
  * Determine the message type from a list of pending files.
  * If every file is an image → "image", otherwise → "file".
  */
-const resolveType = (files, fallback = "text") => {
+const _resolveType = (files, fallback = "text") => {
   if (!files?.length) return fallback;
   return files.every((f) => f.mimeType?.startsWith("image/")) ? "image" : "file";
 };
@@ -82,6 +82,7 @@ export const useSendMessage = () => {
     refetchConversations,
   }) => {
     if (!selectedConversation?._id) return;
+    void refetchMessages;
     if (!newMessage.trim() && !pendingFilesWithRaw?.length && pendingFiles.length === 0) return;
     if (isSending) return;
 

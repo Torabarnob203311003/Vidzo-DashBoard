@@ -103,7 +103,7 @@ const FAQ = () => {
   }
 
   return (
-    <div className="p-10 bg-[#F8FAFC]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-3xl font-black text-[#1E293B]">
@@ -162,7 +162,7 @@ const FAQ = () => {
       {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl p-8 w-[460px]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-[460px] mx-4">
             <h2 className="text-lg font-bold mb-5">
               {isEdit ? "Update FAQ" : "Add New FAQ"}
             </h2>

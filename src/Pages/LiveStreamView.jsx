@@ -6,8 +6,12 @@ import Loader from "@/Components/shared/Loader";
 import { toast } from "sonner";
 
 import AgoraRTC from "agora-rtc-sdk-ng";
-import { useEndStreamMutation, useGetStreamByIdQuery, useGiveWarningMutation, useSendChatMessageMutation } from "@/redux/features/streams/streamsApi";
-
+import {
+  useEndStreamMutation,
+  useGetStreamByIdQuery,
+  useGiveWarningMutation,
+  useSendChatMessageMutation,
+} from "@/redux/features/streams/streamsApi";
 
 const LiveStreamView = () => {
   const navigate = useNavigate();
@@ -29,8 +33,7 @@ const LiveStreamView = () => {
   const videoContainerRef = useRef(null);
   const agoraClientRef = useRef(null);
   const agoraLocalTrackRef = useRef({ videoTrack: null, audioTrack: null });
-
-  const stream = streamData?.data?.streams[0];
+  const stream = streamData?.data;
 
   // Initialize Agora when stream data is available
   useEffect(() => {
@@ -60,7 +63,7 @@ const LiveStreamView = () => {
 
         // Join the channel
         await client.join(
-          stream.agora.appId,
+          "0521b3b0b08140808bb1d7a1fa7bd739",
           stream.agora.channelName,
           stream.agora.token,
           stream.agora.uid,
@@ -72,6 +75,7 @@ const LiveStreamView = () => {
         // agoraLocalTrackRef.current.videoTrack = cameraTrack;
         // await client.publish([microphoneTrack, cameraTrack]);
       } catch (err) {
+        console.log(err);
         console.error("Agora init error:", err);
         toast.error("Failed to join live stream");
       }
@@ -143,7 +147,7 @@ const LiveStreamView = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="p-10 bg-[#F8FAFC] min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC] min-h-screen">
       <button
         onClick={() => navigate("/dashboard/live-monitoring")}
         className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-8 hover:text-[#FFC12D] transition-colors"

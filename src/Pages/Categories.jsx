@@ -123,7 +123,7 @@ const Categories = () => {
     return <Loader></Loader>;
   }
   return (
-    <div className="p-10 bg-[#F8FAFC] min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC] min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-3xl font-black text-[#1E293B]">Categories</h2>
@@ -184,7 +184,7 @@ const Categories = () => {
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40">
-          <div className="bg-white w-full max-w-xl rounded-[40px] p-10 relative">
+          <div className="bg-white w-full max-w-xl rounded-[40px] p-6 sm:p-10 relative">
             <button
               onClick={() => setShowAddModal(false)}
               className="absolute top-8 right-8"
@@ -244,7 +244,7 @@ const Categories = () => {
       {/* Update Modal */}
       {showUpdateModal && updateCategoryDate && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40">
-          <div className="bg-white w-full max-w-xl rounded-[40px] p-10 relative">
+          <div className="bg-white w-full max-w-xl rounded-[40px] p-6 sm:p-10 relative">
             <button
               onClick={() => setShowUpdateModal(false)}
               className="absolute top-8 right-8"

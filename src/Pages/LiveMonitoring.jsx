@@ -41,7 +41,7 @@ const LiveMonitoring = () => {
   const peakConcurrent = streamsData?.data?.peakConcurrent || 0;
 
   return (
-    <div className="p-10">
+    <div className="p-4 sm:p-6 lg:p-10">
       <div className="mb-10">
         <h2 className="text-2xl font-bold text-[#1E293B] mb-8">
           Live Monitoring
@@ -161,7 +161,7 @@ const LiveMonitoring = () => {
 
                     <td className="px-6 py-5">
                       <Link
-                        to={`/dashboard/live-stream/${stream._id}`}
+                        to={`/dashboard/live-monitoring/${stream._id}`}
                         className="p-1.5 text-yellow-500 hover:bg-yellow-50 rounded-lg transition-colors"
                       >
                         <Eye size={18} />

@@ -81,8 +81,8 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
     if (!e.target.files?.length) return;
     const processed = processRawFiles(e.target.files);
     // Keep rawFile references in a ref (not Redux)
-    processed.forEach((f, i) => { rawFilesRef.current.push(f.rawFile); });
-    dispatch(addPendingFiles(processed.map(({ rawFile, ...rest }) => rest)));
+    processed.forEach((f) => { rawFilesRef.current.push(f.rawFile); });
+    dispatch(addPendingFiles(processed.map(({ rawFile, ...rest }) => (void rawFile, rest))));
     e.target.value = "";
   };
 
@@ -236,4 +236,3 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
 };
 
 export default InputArea;
-

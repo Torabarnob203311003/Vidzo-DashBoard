@@ -55,21 +55,24 @@ const ProfileSettings = () => {
   };
   const handleProfileUpdate = async (data) => {
     const formData = new FormData();
+
     if (data.image instanceof File) {
       formData.append("image", data.image);
     }
     if (data.name) {
-      formData.append("name", JSON.stringify(data.name));
+      formData.append("name", data.name); // ✅ FIXED
     }
     if (data.userName) {
-      formData.append("userName", JSON.stringify(data.userName));
+      formData.append("userName", data.userName); // ✅ FIXED
     }
     if (data.email) {
-      formData.append("email", JSON.stringify(data.email));
+      formData.append("email", data.email); // ✅ FIXED
     }
 
     try {
       const res = await updateProfile(formData);
+      console.log(res);
+
       if (res?.error) {
         return toast.error(res.error.data?.message || "Profile Update failed");
       }
@@ -100,7 +103,7 @@ const ProfileSettings = () => {
   };
   console.log(data);
   return (
-    <div className="p-10 bg-[#F8FAFC]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
       <h2 className="text-3xl font-black text-[#1E293B] mb-10">
         Profile Settings
       </h2>

@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  X,
 } from "lucide-react";
 import vidzo from "../assets/Vidzo.jpg";
 import { useDispatch } from "react-redux";
@@ -29,6 +30,7 @@ const SidebarItem = ({
   hasSubmenu,
   isOpen,
   onClick,
+  onNavigate,
   children,
 }) => {
   return (
@@ -36,6 +38,7 @@ const SidebarItem = ({
       {to ? (
         <NavLink
           to={to}
+          onClick={onNavigate}
           className={({ isActive }) =>
             `flex items-center justify-between px-6 py-3 rounded-xl mx-4 cursor-pointer transition-all duration-200 ${
               isActive
@@ -71,31 +74,40 @@ const SidebarItem = ({
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ isMobileOpen = false, onCloseMobile }) => {
   const [openMenus, setOpenMenus] = React.useState({
     users: true,
     approvals: false,
     docs: false,
   });
   const dispatch = useDispatch();
+  const closeMobile = () => onCloseMobile?.();
   const toggleMenu = (menu) => {
     setOpenMenus((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
   return (
-    <div className="w-64 h-full bg-white border-r border-gray-100 flex flex-col overflow-y-auto no-scrollbar fixed left-0 top-0 z-40 shadow-sm">
-      <div className="p-8 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-1 mb-6">
-          <img src={vidzo} alt="VidZo" className="w-16 h-16 object-contain" />
-          <div className="text-center mt-2">
-            <h1 className="text-2xl font-black text-[#1E293B] tracking-tight leading-none">
-              VidZo
-            </h1>
-            <span className="text-[9px] uppercase font-bold text-[#FFC12D] tracking-[0.2em] block">
-              Streaming
-            </span>
-          </div>
+    <div
+      className={`w-64 h-full bg-white border-r border-gray-100 flex flex-col overflow-y-auto no-scrollbar fixed left-0 top-0 z-40 shadow-sm transform transition-transform duration-200 ${
+        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0`}
+    >
+      <div className="p-6 md:p-8 flex items-start justify-between">
+        <div className="flex flex-col items-center gap-1">
+          <img
+            src={vidzo}
+            alt="VidZo"
+            className="w-24 h-16 sm:w-28 sm:h-20 object-contain"
+          />
         </div>
+        <button
+          type="button"
+          onClick={closeMobile}
+          aria-label="Close sidebar"
+          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl hover:bg-gray-50 text-gray-700"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       <nav className="flex-1 space-y-1 pb-10">
@@ -103,11 +115,13 @@ const Sidebar = () => {
           icon={<LayoutGrid />}
           label="Overview"
           to="/dashboard/overview"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<Users />}
           label="Users"
           to="/dashboard/users"
+          onNavigate={closeMobile}
         />
         {/* Users Section */}
         {/* <SidebarItem
@@ -162,26 +176,31 @@ const Sidebar = () => {
           icon={<CircleDollarSign />}
           label="Earnings"
           to="/dashboard/earnings"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<Radio />}
           label="Live Monitoring"
           to="/dashboard/live-monitoring"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<Crown />}
           label="Top Performers"
           to="/dashboard/top-performers"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<MessageSquareWarning />}
           label="Report Monitoring"
           to="/dashboard/report-monitoring"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<Swords />}
           label="Challenges"
           to="/dashboard/challenges"
+          onNavigate={closeMobile}
         />
         {/* <SidebarItem
           icon={<ShoppingBag />}
@@ -192,16 +211,19 @@ const Sidebar = () => {
           icon={<Shapes />}
           label="Categories"
           to="/dashboard/categories"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<MessageSquare />}
           label="Messages"
           to="/dashboard/messages"
+          onNavigate={closeMobile}
         />
         <SidebarItem
           icon={<MessageSquareHeart />}
           label="Feedback"
           to="/dashboard/feedback"
+          onNavigate={closeMobile}
         />
 
         {/* Documentation Section */}
@@ -218,21 +240,25 @@ const Sidebar = () => {
                 icon={<div />}
                 label="FAQ"
                 to="/dashboard/docs/faq"
+                onNavigate={closeMobile}
               />
               <SidebarItem
                 icon={<div />}
                 label="Privacy Policy"
                 to="/dashboard/docs/privacy-policy"
+                onNavigate={closeMobile}
               />
               <SidebarItem
                 icon={<div />}
                 label="Terms of Service"
                 to="/dashboard/docs/terms"
+                onNavigate={closeMobile}
               />
               <SidebarItem
                 icon={<div />}
                 label="About Us"
                 to="/dashboard/docs/about"
+                onNavigate={closeMobile}
               />
             </div>
           )}
@@ -242,6 +268,7 @@ const Sidebar = () => {
           icon={<Settings />}
           label="Profile Settings"
           to="/dashboard/profile-settings"
+          onNavigate={closeMobile}
         />
 
         {/* Logout */}
@@ -249,7 +276,10 @@ const Sidebar = () => {
           <SidebarItem
             icon={<LogOut />}
             label="Log Out"
-            onClick={() => dispatch(logOut())}
+            onClick={() => {
+              dispatch(logOut());
+              closeMobile();
+            }}
           />
         </div>
       </nav>

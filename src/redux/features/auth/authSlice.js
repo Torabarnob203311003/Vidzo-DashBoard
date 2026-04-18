@@ -6,7 +6,8 @@ const initialState = {
   collapsed: false,
   loading: false,
   otpEmail:null,
-  resetToken:null
+  resetToken:null,
+  profile:null
 };
 
 export const authSlice = createSlice({
@@ -15,6 +16,9 @@ export const authSlice = createSlice({
   reducers: {
     storUserData: (state, action) => {
       state.user = action.payload;
+    },
+    storProfile: (state, action) => {
+      state.profile = action.payload;
     },
     storToken: (state, action) => {
       state.token = action.payload;
@@ -40,7 +44,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { storToken, storUserData, setLoading, isCollapsed,setResetToken, setResendOtpEmail,logOut } =
+export const { storToken, storUserData, storProfile, setLoading, isCollapsed,setResetToken, setResendOtpEmail,logOut } =
   authSlice.actions;
 
 export default authSlice.reducer;

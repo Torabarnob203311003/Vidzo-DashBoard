@@ -1,17 +1,25 @@
-import React from 'react';
-import { Bell, Search, X, Check } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { clearNotifications } from '@/redux/features/appSlice';
+import React from "react";
+import { Menu } from "lucide-react";
+import { useSelector } from "react-redux";
+// import { clearNotifications } from '@/redux/features/appSlice';
 
-const Header = () => {
-  const dispatch = useDispatch();
-  const notifications = useSelector(state => state.app.notifications);
-  const [showNotifications, setShowNotifications] = React.useState(false);
+const Header = ({ onOpenSidebar }) => {
+  // const dispatch = useDispatch();
+  const profile = useSelector((state) => state.auth.profile);
+  // const [showNotifications, setShowNotifications] = React.useState(false);
 
   return (
-    <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-end px-10 fixed top-0 right-0 left-64 z-30">
-      <div className="flex items-center gap-6 relative">
-        <div 
+    <header className="h-20 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 lg:px-10 fixed top-0 right-0 left-0 md:left-64 z-30">
+      <div className="flex items-center w-full justify-between md:justify-end gap-4 relative">
+        <button
+          type="button"
+          onClick={onOpenSidebar}
+          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl hover:bg-gray-50 text-gray-700"
+          aria-label="Open sidebar"
+        >
+          <Menu size={22} />
+        </button>
+        {/* <div 
           className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors"
           onClick={() => setShowNotifications(!showNotifications)}
         >
@@ -19,9 +27,9 @@ const Header = () => {
           {notifications.length > 0 && (
             <span className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full border-2 border-white animate-pulse"></span>
           )}
-        </div>
+        </div> */}
 
-        {showNotifications && (
+        {/* {showNotifications && (
           <div className="absolute top-14 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2">
             <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
               <span className="text-sm font-bold text-gray-800">Notifications</span>
@@ -55,15 +63,15 @@ const Header = () => {
               )}
             </div>
           </div>
-        )}
+        )} */}
         
         <div className="flex items-center gap-4 bg-gray-50 pl-4 pr-6 py-2 rounded-full cursor-pointer hover:bg-gray-100 transition-colors">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-bold text-gray-800">Austin Mahoney</span>
-            <span className="text-[11px] font-medium text-gray-400">Admin</span>
+            <span className="text-sm font-bold text-gray-800">{profile?.name || "Admin"}</span>
+            <span className="text-[11px] font-medium text-gray-400">{profile?.role === "SUPER_ADMIN" ? "Admin" : "Admin"}</span>
           </div>
           <img 
-            src="https://picsum.photos/40/40?seed=admin" 
+            src={profile?.image || "https://picsum.photos/40/40?seed=admin"} 
             alt="Profile" 
             className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
           />
