@@ -26,6 +26,7 @@ import LiveStreamView from "./Pages/LiveStreamView";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
 import TermsOfService from "./Pages/TermsOfService";
 import AboutUs from "./Pages/AboutUs";
+import SubscriptionPackages from "./Pages/Subscription";
 
 // Auth Wrapper
  // Your auth check component
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="categories" element={<Categories />} />
             <Route path="messages" element={<Messages />} />
             <Route path="feedback" element={<Feedback />} />
+            <Route path="subscriptions" element={<SubscriptionPackages />} />
 
             {/* Docs */}
             <Route path="docs/faq" element={<FAQ />} />

@@ -5,7 +5,7 @@ const streamApi = baseApi.injectEndpoints({
     getStreamById: builder.query({
       query: (id) => {
         return {
-          url: `/admin/stream/monitoring/${id}`,
+          url: `admin/stream/active/${id}/preview`,
           method: "GET",
    
         };
@@ -14,6 +14,7 @@ const streamApi = baseApi.injectEndpoints({
     }),
     giveWarning: builder.mutation({
       query: ({ id, data }) => {
+        console.log(data)
         return {
           url: `admin/stream/${id}/warn`,
           method: "POST",
@@ -26,7 +27,7 @@ const streamApi = baseApi.injectEndpoints({
       query: ({ id, data }) => {
         return {
           url: `admin/stream/${id}/end`,
-          method: "POST",
+          method: "PATCH",
           body: data,
         };
       },

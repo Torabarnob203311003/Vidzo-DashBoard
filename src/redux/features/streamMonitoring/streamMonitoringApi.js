@@ -4,11 +4,11 @@ const streamMonitoringApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     getLiveStreams: builder.query({
-      query: ({params}) => {
+      query: ({ searchTerm } = {}) => {
         return {
-          url: `/admin/stream/monitoring`,
+          url: `admin/stream/monitoring`,
           method: "GET",
-          params
+          params: searchTerm ? { searchTerm } : undefined,
         };
       },
       providesTags: ["getLiveStreams"],

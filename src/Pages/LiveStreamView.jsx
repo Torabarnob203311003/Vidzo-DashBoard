@@ -31,51 +31,72 @@ const LiveStreamView = () => {
   } = useForm();
 
   const videoContainerRef = useRef(null);
+  const agoraPlayerRef = useRef(null);
   const agoraClientRef = useRef(null);
   const agoraLocalTrackRef = useRef({ videoTrack: null, audioTrack: null });
-  const stream = streamData?.data;
-
+  const stream = streamData?.data?.playback ?? streamData?.data;
   // Initialize Agora when stream data is available
   useEffect(() => {
-    if (!stream?.agora) return;
+    if (!stream) return;
+
+    const playerEl = agoraPlayerRef.current;
+    const localTracks = agoraLocalTrackRef.current;
 
     const initAgora = async () => {
       try {
         const client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
         agoraClientRef.current = client;
 
-        client.on("user-published", async (user, mediaType) => {
+        await client.setClientRole("audience");
+
+        const clearPlayer = () => {
+          if (playerEl) playerEl.innerHTML = "";
+        };
+
+        // ✅ Helper to subscribe and play a remote user
+        const subscribeAndPlay = async (user, mediaType) => {
           await client.subscribe(user, mediaType);
           if (mediaType === "video") {
-            const remoteVideoTrack = user.videoTrack;
-            const playerContainer = document.createElement("div");
-            playerContainer.id = user.uid;
-            playerContainer.style.width = "100%";
-            playerContainer.style.height = "100%";
-            videoContainerRef.current.appendChild(playerContainer);
-            remoteVideoTrack.play(playerContainer);
+            clearPlayer();
+            if (playerEl) user.videoTrack.play(playerEl);
           }
           if (mediaType === "audio") {
-            const remoteAudioTrack = user.audioTrack;
-            remoteAudioTrack.play();
+            user.audioTrack.play();
           }
+        };
+
+        // For users who publish AFTER you join
+        client.on("user-published", async (user, mediaType) => {
+          await subscribeAndPlay(user, mediaType);
         });
 
-        // Join the channel
-        await client.join(
-          "0521b3b0b08140808bb1d7a1fa7bd739",
-          stream.agora.channelName,
-          stream.agora.token,
-          stream.agora.uid,
-        );
+        client.on("user-unpublished", (_user, mediaType) => {
+          if (mediaType === "video") clearPlayer();
+        });
 
-        // If you want to publish local admin video/audio (optional)
-        // const [microphoneTrack, cameraTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
-        // agoraLocalTrackRef.current.audioTrack = microphoneTrack;
-        // agoraLocalTrackRef.current.videoTrack = cameraTrack;
-        // await client.publish([microphoneTrack, cameraTrack]);
+        client.on("user-left", () => clearPlayer());
+
+        const appId = import.meta.env.VITE_AGORA_APP_ID;
+        console.log(appId);
+        clearPlayer();
+
+        await client.join(
+          appId,
+          streamData?.data?.playback.viewerToken.channelName,
+          streamData?.data?.playback?.viewerToken?.token,
+          streamData?.data?.playback?.viewerToken?.uid,
+        );
+        client.on("user-joined", (user) => {
+          console.log("🟢 User joined:", user.uid, user);
+        });
+
+        // ✅ KEY FIX: Handle users who were ALREADY publishing before you joined
+        // Agora won't fire user-published for them retroactively
+        for (const user of client.remoteUsers) {
+          if (user.hasVideo) await subscribeAndPlay(user, "video");
+          if (user.hasAudio) await subscribeAndPlay(user, "audio");
+        }
       } catch (err) {
-        console.log(err);
         console.error("Agora init error:", err);
         toast.error("Failed to join live stream");
       }
@@ -84,14 +105,14 @@ const LiveStreamView = () => {
     initAgora();
 
     return () => {
-      // Clean up Agora client on unmount
       const cleanup = async () => {
         try {
-          if (agoraLocalTrackRef.current.audioTrack)
-            await agoraLocalTrackRef.current.audioTrack.stop();
-          if (agoraLocalTrackRef.current.videoTrack)
-            await agoraLocalTrackRef.current.videoTrack.stop();
+          if (localTracks.audioTrack) localTracks.audioTrack.stop();
+          if (localTracks.videoTrack) localTracks.videoTrack.stop();
+          localTracks.audioTrack?.close?.();
+          localTracks.videoTrack?.close?.();
           await agoraClientRef.current?.leave();
+          if (playerEl) playerEl.innerHTML = "";
           agoraClientRef.current = null;
         } catch (err) {
           console.error("Agora cleanup error:", err);
@@ -104,7 +125,7 @@ const LiveStreamView = () => {
   // Send chat message
   const onSendChat = async (data) => {
     try {
-      const res = await sendMessage({ streamId: id, message: data.message });
+      const res = await sendMessage({ id, data: { message: data.message } });
       if (res?.error)
         return toast.error(res.error.data?.message || "Failed to send message");
       if (res.data?.success) {
@@ -119,9 +140,15 @@ const LiveStreamView = () => {
     }
   };
 
-  const handleEndStream = async () => {
+  const handleEndStream = async (data) => {
     try {
-      const res = await endStream(id);
+      let warningData;
+
+      if (!data) {
+        warningData = { reason: "Inappropriate content" };
+      }
+
+      const res = await endStream({ id, data: warningData });
       if (res?.error)
         return toast.error(res.error.data?.message || "Failed to end stream");
       if (res.data?.success) {
@@ -133,9 +160,18 @@ const LiveStreamView = () => {
     }
   };
 
-  const handleGiveWarning = async () => {
+  const handleGiveWarning = async (data) => {
+    let warningData;
+
+    if (!data) {
+      warningData = {
+        reason: "inappropriate_content",
+        severity: "warning",
+        description: "Stream contains policy-violating content",
+      };
+    }
     try {
-      const res = await giveWarning(id);
+      const res = await giveWarning({ id, data: warningData });
       if (res?.error)
         return toast.error(res.error.data?.message || "Failed to give warning");
       if (res.data?.success) toast.success(res.data.message);
@@ -145,7 +181,9 @@ const LiveStreamView = () => {
   };
 
   if (isLoading) return <Loader />;
-
+  if (!stream) {
+    navigate("/dashboard/live-monitoring");
+  }
   return (
     <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC] min-h-screen">
       <button
@@ -160,9 +198,11 @@ const LiveStreamView = () => {
           {/* Stream Video */}
           <div
             ref={videoContainerRef}
-            className="relative flex-1 bg-black rounded-3xl overflow-hidden group"
+            className="relative flex-1 bg-black rounded-3xl group h-96 lg:h-[500px] overflow-hidden flex items-center justify-center"
           >
-            {!stream?.agora && (
+            <div ref={agoraPlayerRef} className="absolute inset-0 z-50" />
+
+            {!streamData?.data?.playback && (
               <img
                 src={
                   stream?.banner ||
@@ -172,7 +212,8 @@ const LiveStreamView = () => {
                 alt="Live Stream"
               />
             )}
-            <div className="absolute top-6 left-6 flex items-center gap-2">
+
+            <div className="absolute top-6 left-6 z-10 flex items-center gap-2">
               <span className="bg-red-600 text-white px-3 py-1 text-xs font-bold rounded-lg uppercase">
                 Live
               </span>

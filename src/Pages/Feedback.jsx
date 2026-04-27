@@ -125,7 +125,7 @@ const Feedback = () => {
             alignItems: "center",
             background: "rgba(0,0,0,0.45)",
             zIndex: 1000,
-            fontFamily: "'DM Sans','Segoe UI',sans-serif",
+            fontFamily: "'Plus Jakarta Sans','Segoe UI',sans-serif",
           }}
         >
           <div

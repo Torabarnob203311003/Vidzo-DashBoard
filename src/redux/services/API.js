@@ -60,7 +60,16 @@ const baseQueryWithRefreshToken = async (args, api, extraOptions) => {
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithRefreshToken,
-  tagTypes: ["getUser", "getCategories", "getProfile", "getAds"],
+  tagTypes: [
+    "getUser",
+    "getCategories",
+    "getProfile",
+    "getAds",
+    "getDashboard",
+    "getStreams",
+    "getLiveStreams",
+    "getEarnings",
+  ],
   endpoints: (builder) => ({
     getDashboard: builder.query({
       query: (params) => {

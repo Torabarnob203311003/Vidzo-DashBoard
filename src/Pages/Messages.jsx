@@ -170,7 +170,7 @@ const Messages = () => {
   }
 
   return (
-    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }} className="flex h-[calc(100vh-5rem)] bg-gray-50 overflow-hidden">
+<div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }} className="flex h-[calc(100vh-5rem)] bg-gray-50 overflow-hidden">
 
       {/* Sidebar */}
       <div className={`${selectedConversation ? "hidden md:block" : "block"}`}>

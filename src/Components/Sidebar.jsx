@@ -3,13 +3,11 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutGrid,
   Users,
-  FileCheck,
   CircleDollarSign,
   Radio,
   Crown,
   MessageSquareWarning,
   Swords,
-  ShoppingBag,
   Shapes,
   MessageSquare,
   MessageSquareHeart,
@@ -18,10 +16,12 @@ import {
   LogOut,
   ChevronDown,
   X,
+  Wallet,
 } from "lucide-react";
 import vidzo from "../assets/Vidzo.jpg";
 import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
+
 
 const SidebarItem = ({
   icon,
@@ -176,6 +176,12 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile }) => {
           icon={<CircleDollarSign />}
           label="Earnings"
           to="/dashboard/earnings"
+          onNavigate={closeMobile}
+        />
+        <SidebarItem
+          icon={<Wallet />}
+          label="Subscriptions"
+          to="/dashboard/subscriptions"
           onNavigate={closeMobile}
         />
         <SidebarItem

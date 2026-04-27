@@ -52,7 +52,7 @@ export function RichTextEditor({
     const scopeId = `lumina-content-${Math.random().toString(36).slice(2, 9)}`;
     const styleBlock = `
 <style>
-  #${scopeId} { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.7; font-size: 16px; color: #374151; }
+  #${scopeId} { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.7; font-size: 16px; color: #374151; }
   #${scopeId} ul, #${scopeId} ol { list-style-position: outside; margin-left: 2rem; margin-top: 1rem; margin-bottom: 1rem; }
   #${scopeId} li { margin-bottom: 0.5rem; }
   #${scopeId} h1 { font-size: 32px; font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: #111827; }
