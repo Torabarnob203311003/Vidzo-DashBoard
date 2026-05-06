@@ -7,7 +7,7 @@ const Header = ({ onOpenSidebar }) => {
   // const dispatch = useDispatch();
   const profile = useSelector((state) => state.auth.profile);
   // const [showNotifications, setShowNotifications] = React.useState(false);
-
+console.log(profile?.image)
   return (
     <header className="h-20 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 lg:px-10 fixed top-0 right-0 left-0 md:left-64 z-30">
       <div className="flex items-center w-full justify-between md:justify-end gap-4 relative">

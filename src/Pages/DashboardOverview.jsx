@@ -66,7 +66,6 @@ const DashboardOverview = () => {
   if (isLoading || isProfileLoading) {
     return <Loader />;
   }
-  console.log(profileData);
   const cards = stats?.data?.cards;
   const charts = stats?.data?.charts;
 
@@ -88,7 +87,6 @@ const DashboardOverview = () => {
       streams: charts?.dailyActivityPattern?.series?.[0]?.data?.[index] || 0,
       users: charts?.dailyActivityPattern?.series?.[1]?.data?.[index] || 0,
     })) || [];
-  console.log(charts);
   const PieData =
     charts?.geographicDistribution?.items?.map((item, index) => ({
       name: item.region,

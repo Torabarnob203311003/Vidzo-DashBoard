@@ -13,7 +13,8 @@ import {
 import { useUseGetFeedbackQuery } from "../redux/features/feedback/feedbackApi";
 
 const Feedback = () => {
-  const { data: feedback, isLoading } = useUseGetFeedbackQuery();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { data: feedback, isLoading } = useUseGetFeedbackQuery({ searchTerm: searchTerm });
 
   const [showModal, setShowModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
@@ -39,6 +40,7 @@ const Feedback = () => {
           <input
             type="text"
             placeholder="Search..."
+            onChange={(e)=>setSearchTerm(e.target.value)}
             className="pl-12 pr-6 py-3.5 bg-white border border-gray-100 rounded-2xl w-96 focus:outline-none shadow-sm font-medium"
           />
         </div>
@@ -82,11 +84,11 @@ const Feedback = () => {
                     </TableCell>
 
                     <TableCell className="px-10 py-6 text-sm font-black text-[#1E293B]">
-                      {item.name}
+                      {item?.user?.name}
                     </TableCell>
 
                     <TableCell className="px-10 py-6 text-sm font-bold text-gray-500 max-w-sm truncate">
-                      {item.feedback}
+                      {item.message}
                     </TableCell>
 
                     <TableCell className="px-10 py-6">

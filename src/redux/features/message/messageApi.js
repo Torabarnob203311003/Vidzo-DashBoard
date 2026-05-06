@@ -31,21 +31,13 @@ const messageApi = baseApi.injectEndpoints({
       providesTags: ["getMessages"],
     }),
     makeReadAllMassage: builder.mutation({
-      query: ({conversationId}) => {
+      query: ({ conversationId }) => {
         return {
           url: `admin/support/${conversationId}/mark-read`,
           method: "PATCH",
         };
       },
-    }),
-    deleteCategory: builder.mutation({
-      query: (id) => {
-        return {
-          url: `admin/delete-category/${id}`,
-          method: "DELETE",
-        };
-      },
-      invalidatesTags: ["getCategories"],
+      invalidatesTags: ["getMessages"],
     }),
   }),
 });

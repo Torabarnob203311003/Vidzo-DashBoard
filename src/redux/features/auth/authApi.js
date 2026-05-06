@@ -10,7 +10,7 @@ const authApi = baseApi.injectEndpoints({
           body: user,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
     login: builder.mutation({
       query: (user) => {
@@ -20,7 +20,7 @@ const authApi = baseApi.injectEndpoints({
           body: user,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
 
     forgetPassword: builder.mutation({
@@ -31,7 +31,7 @@ const authApi = baseApi.injectEndpoints({
           body: emailData,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
 
     resendOTP: builder.mutation({
@@ -42,7 +42,7 @@ const authApi = baseApi.injectEndpoints({
           body: user,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
     verifyOTP: builder.mutation({
       query: (user) => {
@@ -52,7 +52,7 @@ const authApi = baseApi.injectEndpoints({
           body: user,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
 
     resetPassword: builder.mutation({
@@ -63,7 +63,7 @@ const authApi = baseApi.injectEndpoints({
           body: updatedData,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
 
     changePassword: builder.mutation({
@@ -74,7 +74,7 @@ const authApi = baseApi.injectEndpoints({
           body: authData,
         };
       },
-      invalidatesTags: ["getUser"],
+      invalidatesTags: ["getProfile"],
     }),
   }),
 });

@@ -61,10 +61,8 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithRefreshToken,
   tagTypes: [
-    "getUser",
     "getCategories",
     "getProfile",
-    "getAds",
     "getDashboard",
     "getStreams",
     "getLiveStreams",
@@ -72,6 +70,13 @@ export const baseApi = createApi({
     "getMessages",
     "getConversations",
     "getStreamChat",
+    "getFeedback",
+    "getTopPerformers",
+    "getSubscriptions",
+    "getReports",
+    "getDocumentation",
+    "getFAQ",
+    "getUsers",
   ],
   endpoints: (builder) => ({
     getDashboard: builder.query({

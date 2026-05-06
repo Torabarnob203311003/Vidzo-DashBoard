@@ -17,8 +17,8 @@ import Loader from "../Components/shared/Loader";
 
 const Earnings = () => {
   const [page, setPage] = useState(1);
-
-  const { data: earnings, isLoading } = useGetEarningsQuery({ page });
+const [searchTerm, setSearchTerm] = useState("");
+  const { data: earnings, isLoading } = useGetEarningsQuery({ searchTerm, page });
 
   const {
     register,
@@ -61,6 +61,7 @@ const Earnings = () => {
             {...register("search")}
             type="text"
             placeholder="Search..."
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-12 pr-6 py-3.5 bg-white border border-gray-100 rounded-2xl w-96 focus:outline-none shadow-sm font-medium"
           />
         </form>
