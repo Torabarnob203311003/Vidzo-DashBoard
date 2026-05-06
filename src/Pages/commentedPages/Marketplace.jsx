@@ -9,7 +9,7 @@
 //   TableRow,
 //   TableHead,
 //   TableCell,
-// } from '@/components/ui/table';
+// } from '@/Components/ui/table';
 
 // const Marketplace = () => {
 //   const { data: items, isLoading } = useGetMarketplaceItemsQuery();

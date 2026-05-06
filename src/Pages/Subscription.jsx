@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2, X } from "lucide-react";
-import { Table, TableBody, TableRow, TableCell, TableHead, TableHeader } from "@/components/ui/table";
+import { Table, TableBody, TableRow, TableCell, TableHead, TableHeader } from "@/Components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/Components/ui/select";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FileUpload from "@/Components/shared/UploadFile";

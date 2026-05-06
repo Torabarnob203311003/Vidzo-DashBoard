@@ -9,7 +9,7 @@
 //   TableHead,
 //   TableHeader,
 //   TableRow,
-// } from "@/components/ui/table";
+// } from "@/Components/ui/table";
 
 // const BusinessUsers = () => {
 //   const { data: businesses, isLoading } = useGetBusinessUsersQuery();

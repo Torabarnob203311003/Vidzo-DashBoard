@@ -9,7 +9,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/Components/ui/table";
 import { useUseGetFeedbackQuery } from "@/redux/features/feedback/feedbackApi";
 
 const Feedback = () => {

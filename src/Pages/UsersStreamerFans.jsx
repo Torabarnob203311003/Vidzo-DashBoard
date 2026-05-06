@@ -10,7 +10,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/Components/ui/table";
 
 import Loader from "@/Components/shared/Loader";
 import { toast } from "sonner";

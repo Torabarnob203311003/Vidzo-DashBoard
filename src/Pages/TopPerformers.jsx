@@ -6,7 +6,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/Components/ui/table";
 import Pagination from "@/Components/shared/Pagination";
 import { useState } from "react";
 import Loader from "@/Components/shared/Loader";

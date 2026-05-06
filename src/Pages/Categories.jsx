@@ -17,7 +17,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/Components/ui/table";
 import FileUpload from "@/Components/shared/UploadFile";
 import { useForm } from "react-hook-form";
 import {

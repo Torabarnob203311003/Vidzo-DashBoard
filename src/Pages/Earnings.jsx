@@ -9,7 +9,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/Components/ui/table";
 import Pagination from "@/Components/shared/Pagination";
 import { useForm } from "react-hook-form";
 import { useGetEarningsQuery } from "@/redux/features/earnings/earningsApi";
