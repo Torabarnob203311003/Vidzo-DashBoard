@@ -5,7 +5,7 @@ const subscriptionsApi = baseApi.injectEndpoints({
     getPackages: builder.query({
       query: (params) => {
         return {
-          url: `subscription/admin/all`,
+          url: `subscription/admin/tiers`,
           method: "GET",
           params,
         };
