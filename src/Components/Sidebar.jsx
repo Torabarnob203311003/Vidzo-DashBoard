@@ -178,12 +178,12 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile }) => {
           to="/dashboard/earnings"
           onNavigate={closeMobile}
         />
-        <SidebarItem
+        {/* <SidebarItem
           icon={<Wallet />}
           label="Subscriptions"
           to="/dashboard/subscriptions"
           onNavigate={closeMobile}
-        />
+        /> */}
         <SidebarItem
           icon={<Radio />}
           label="Live Monitoring"
