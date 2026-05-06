@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2, X } from "lucide-react";
-import { Table, TableBody, TableRow, TableCell, TableHead, TableHeader } from "@/Components/ui/table";
+import { Table, TableBody, TableRow, TableCell, TableHead, TableHeader } from "../Components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select";
+} from "../Components/ui/select";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
-import FileUpload from "@/Components/shared/UploadFile";
+import FileUpload from "../Components/shared/UploadFile";
 import {
   useCreatePackageMutation,
   useDeletePackageMutation,
   useGetPackagesQuery,
   useUpdatePackageMutation,
-} from "@/redux/features/subscription/subscriptionApi";
-import Loader from "@/Components/shared/Loader";
+} from "../redux/features/subscription/subscriptionApi";
+import Loader from "../Components/shared/Loader";
 
 const typeColor = (t) =>
   ({ Basic: "#e0f2fe", Standard: "#ede9fe", Premium: "#fef9c3" }[t] || "#f1f5f9");

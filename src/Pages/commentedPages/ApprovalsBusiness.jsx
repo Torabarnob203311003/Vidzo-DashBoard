@@ -1,6 +1,6 @@
 // import React from 'react';
 // import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-// import { useGetApprovalBusinessQuery } from '@/services/apiService';
+// import { useGetApprovalBusinessQuery } from '../../services/apiService';
 
 // const ApprovalBusiness = () => {
 //   const { data: approvals, isLoading } = useGetApprovalBusinessQuery();

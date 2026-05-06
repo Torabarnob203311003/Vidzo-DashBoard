@@ -19,13 +19,13 @@ import {
 } from "recharts";
 import { Users, DollarSign, Radio, ChevronDown } from "lucide-react";
 
-import Loader from "@/Components/shared/Loader";
-import { useGetDashboardQuery } from "@/redux/services/API";
-import { YearPicker } from "@/Components/shared/YearPicker";
+import Loader from "../Components/shared/Loader";
+import { useGetDashboardQuery } from "../redux/services/API";
+import { YearPicker } from "../Components/shared/YearPicker";
 import { toast } from "sonner";
-import { useGetProfileQuery } from "@/redux/features/profile/profileApi";
+import { useGetProfileQuery } from "../redux/features/profile/profileApi";
 import { useDispatch } from "react-redux";
-import { storProfile } from "@/redux/features/auth/authSlice";
+import { storProfile } from "../redux/features/auth/authSlice";
 
 const StatsCard = ({ title, value, trend, icon }) => (
   <div className="bg-white p-6 rounded-xl border border-gray-100 flex justify-between items-start">

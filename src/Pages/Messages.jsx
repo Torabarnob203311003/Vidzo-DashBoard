@@ -64,12 +64,12 @@ import {
   addPendingFiles,
   selectSelectedConversation,
   setSelectedConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 
 // ── API ──────────────────────────────────────────────────────
 import {
   useGetAllConversationsQuery,
-} from "@/redux/features/message/messageApi";
+} from "../redux/features/message/messageApi";
 
 // ── Hooks ────────────────────────────────────────────────────
 import { useAdminSocket } from "../lib/useAdminSocket";

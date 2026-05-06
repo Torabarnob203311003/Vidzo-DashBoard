@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AlertCircle, X } from "lucide-react";
-import { clearSocketError, selectSocketError } from "@/redux/features/message/messageSlice";
+import { clearSocketError, selectSocketError } from "../redux/features/message/messageSlice";
 
 /**
  * Displays a dismissible error banner at the top of the chat area

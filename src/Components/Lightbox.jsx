@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   ChevronLeft, ChevronRight, Download, RotateCw, X, ZoomIn, ZoomOut,
 } from "lucide-react";
-import { closeLightbox, selectLightbox, setLightboxIndex } from "@/redux/features/message/messageSlice";
+import { closeLightbox, selectLightbox, setLightboxIndex } from "../redux/features/message/messageSlice";
 import { getMessageMediaUrl, guessFilename } from "../lib/utils";
 import { GOLD } from "../lib/constants";
 

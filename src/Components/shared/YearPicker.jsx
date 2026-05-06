@@ -1,12 +1,12 @@
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@/Components/ui/button";
+import { Button } from "../ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/Components/ui/popover";
+} from "../ui/popover";
 
 export function YearPicker({
   year,

@@ -17,16 +17,16 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
-import FileUpload from "@/Components/shared/UploadFile";
+} from "../Components/ui/table";
+import FileUpload from "../Components/shared/UploadFile";
 import { useForm } from "react-hook-form";
 import {
   useCreateCategoryMutation,
   useDeleteCategoryMutation,
   useGetCategoryQuery,
   useUpdateCategoryMutation,
-} from "@/redux/features/categories/categoriesApi";
-import Loader from "@/Components/shared/Loader";
+} from "../redux/features/categories/categoriesApi";
+import Loader from "../Components/shared/Loader";
 import { toast } from "sonner";
 
 const Categories = () => {

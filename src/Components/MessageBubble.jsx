@@ -1,9 +1,9 @@
 import React from "react";
 import { Reply, Check, CheckCheck } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { openLightbox, selectSelectedConversation, setReplyingTo } from "@/redux/features/message/messageSlice";
+import { openLightbox, selectSelectedConversation, setReplyingTo } from "../redux/features/message/messageSlice";
 import FileBubble   from "./FileBubble";
-import ImageBubble  from "./ImageBubble";
+import ImageBubble  from "./Imagebubble";
 import { formatTime, getMessageMediaUrl, guessFilename, isAdminMessage } from "../lib/utils";
 import { GOLD, GOLD_DARK } from "../lib/constants";
 

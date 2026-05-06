@@ -9,7 +9,7 @@ import {
   selectSelectedConversation,
   setIsSending,
   setSocketError,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 
 // ── Helpers ───────────────────────────────────────────────────
 

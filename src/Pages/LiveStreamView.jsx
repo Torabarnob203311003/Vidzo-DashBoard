@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 // import { useForm } from "react-hook-form";
 // import { useSelector } from "react-redux";
 // import { io } from "socket.io-client";
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 import { toast } from "sonner";
 
 import AgoraRTC from "agora-rtc-sdk-ng";
@@ -15,7 +15,7 @@ import {
   // useGetStreamChatQuery,
   useGiveWarningMutation,
   // useSendChatMessageMutation,
-} from "@/redux/features/streams/streamsApi";
+} from "../redux/features/streams/streamsApi";
 
 const LiveStreamView = () => {
   const navigate = useNavigate();

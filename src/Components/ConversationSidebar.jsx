@@ -8,7 +8,7 @@ import {
   selectSocketMessages,
   setSearch,
   setSelectedConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 import { formatLastMessageTime } from "../lib/utils";
 import { GOLD } from "../lib/constants";
 

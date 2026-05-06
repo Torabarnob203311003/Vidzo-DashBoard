@@ -12,8 +12,8 @@ import {
   setUserOffline,
   setUserOnline,
   updateConversationStatus,
-} from "@/redux/features/message/messageSlice";
-import { baseApi } from "@/redux/services/API";
+} from "../redux/features/message/messageSlice";
+import { baseApi } from "../redux/services/API";
 import { SOCKET_URL } from "../lib/constants";
 
 /**

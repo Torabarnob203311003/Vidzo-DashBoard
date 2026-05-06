@@ -9,11 +9,11 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
-import Pagination from "@/Components/shared/Pagination";
+} from "../Components/ui/table";
+import Pagination from "../Components/shared/Pagination";
 import { useForm } from "react-hook-form";
-import { useGetEarningsQuery } from "@/redux/features/earnings/earningsApi";
-import Loader from "@/Components/shared/Loader";
+import { useGetEarningsQuery } from "../redux/features/earnings/earningsApi";
+import Loader from "../Components/shared/Loader";
 
 const Earnings = () => {
   const [page, setPage] = useState(1);

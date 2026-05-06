@@ -1,4 +1,4 @@
-import { baseApi } from "@/redux/services/API";
+import { baseApi } from "../../services/API";
 
 const profileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

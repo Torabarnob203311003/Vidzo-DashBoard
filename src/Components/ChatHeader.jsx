@@ -5,7 +5,7 @@ import {
   selectConversationStatus,
   selectIsUserOnline,
   selectSelectedConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 
 const STATUSES = ["open", "in-progress", "resolved", "closed"];
 

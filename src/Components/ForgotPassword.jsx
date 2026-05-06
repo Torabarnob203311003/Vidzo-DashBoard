@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
+import { useForgetPasswordMutation } from "../redux/features/auth/authApi";
 import { useDispatch } from "react-redux";
-import { setResendOtpEmail } from "@/redux/features/auth/authSlice";
+import { setResendOtpEmail } from "../redux/features/auth/authSlice";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();

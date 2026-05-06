@@ -6,11 +6,11 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
-import Pagination from "@/Components/shared/Pagination";
+} from "../Components/ui/table";
+import Pagination from "../Components/shared/Pagination";
 import { useState } from "react";
-import Loader from "@/Components/shared/Loader";
-import { useGetTopPerformersQuery } from "@/redux/features/topPerformers/topPerformersApi";
+import Loader from "../Components/shared/Loader";
+import { useGetTopPerformersQuery } from "../redux/features/topPerformers/topPerformersApi";
 
 
 const TopPerformers = () => {

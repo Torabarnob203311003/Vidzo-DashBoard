@@ -7,11 +7,11 @@ import {
   selectSelectedConversation,
   selectSocketMessages,
   selectTypingForConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 import {
   useGetAllMessagesOfConversationQuery,
   useMakeReadAllMassageMutation,
-} from "@/redux/features/message/messageApi";
+} from "../redux/features/message/messageApi";
 import { formatDate, getMessageMediaUrl, guessFilename } from "../lib/utils";
 import { GOLD } from "../lib/constants";
 

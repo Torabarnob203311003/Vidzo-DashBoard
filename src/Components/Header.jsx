@@ -1,7 +1,7 @@
 import React from "react";
 import { Menu } from "lucide-react";
 import { useSelector } from "react-redux";
-// import { clearNotifications } from '@/redux/features/appSlice';
+// import { clearNotifications } from '../redux/features/appSlice';
 
 const Header = ({ onOpenSidebar }) => {
   // const dispatch = useDispatch();

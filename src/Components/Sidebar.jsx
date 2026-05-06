@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import vidzo from "../assets/Vidzo.jpg";
 import { useDispatch } from "react-redux";
-import { logOut } from "@/redux/features/auth/authSlice";
+import { logOut } from "../redux/features/auth/authSlice";
 
 
 const SidebarItem = ({

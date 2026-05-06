@@ -4,14 +4,14 @@ import { ArrowLeft } from "lucide-react";
 import {
   useResendOTPMutation,
   useVerifyOTPMutation,
-} from "@/redux/features/auth/authApi";
+} from "../redux/features/auth/authApi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setResendOtpEmail,
   setResetToken,
-} from "@/redux/features/auth/authSlice";
+} from "../redux/features/auth/authSlice";
 
 export default function OTPVerification() {
   const resendOtpEmail = useSelector((state) => state.auth.otpEmail);

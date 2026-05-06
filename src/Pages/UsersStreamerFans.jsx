@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Search, Eye, Ban, X, ChevronLeft, ChevronRight, Check } from "lucide-react";
-import UserDetailsModal from "@/Components/UserDetailsModal";
+import UserDetailsModal from "../Components/UserDetailsModal";
 
 import {
   Table,
@@ -10,12 +10,12 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
+} from "../Components/ui/table";
 
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 import { toast } from "sonner";
-import { useBlockUserMutation, useGetUsersQuery, useUnblockUserMutation } from "@/redux/features/user/userApi";
-import Pagination from "@/Components/shared/Pagination";
+import { useBlockUserMutation, useGetUsersQuery, useUnblockUserMutation } from "../redux/features/user/userApi";
+import Pagination from "../Components/shared/Pagination";
 
 const UsersStreamerFans = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);

@@ -9,8 +9,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
-import { useUseGetFeedbackQuery } from "@/redux/features/feedback/feedbackApi";
+} from "../Components/ui/table";
+import { useUseGetFeedbackQuery } from "../redux/features/feedback/feedbackApi";
 
 const Feedback = () => {
   const { data: feedback, isLoading } = useUseGetFeedbackQuery();

@@ -5,7 +5,7 @@ import {
   dismissNotification,
   selectNotifications,
   setSelectedConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 import { GOLD } from "../lib/constants";
 
 /**

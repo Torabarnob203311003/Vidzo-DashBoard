@@ -1,7 +1,7 @@
 
 import { X, Mail, MapPin } from "lucide-react";
-import Loader from "@/Components/shared/Loader";
-import { useGetUserDetailsQuery } from "@/redux/features/user/userApi";
+import Loader from "./shared/Loader";
+import { useGetUserDetailsQuery } from "../redux/features/user/userApi";
 
 
 export default function UserDetailsModal({ onClose, id }) {

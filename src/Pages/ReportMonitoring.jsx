@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 import {
   useGetReportQuery,
   useUpdateReportMutation,
-} from "@/redux/features/repoet/reportApi";
+} from "../redux/features/repoet/reportApi";
 import { toast } from "sonner";
 
 const ReportMonitoring = () => {

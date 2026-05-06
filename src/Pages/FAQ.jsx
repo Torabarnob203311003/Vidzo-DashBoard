@@ -5,9 +5,9 @@ import {
   useUpdateFAQMutation,
   useDeleteFAQMutation,
   useGetFAQQuery,
-} from "@/redux/features/documentation/documentationApi";
+} from "../redux/features/documentation/documentationApi";
 import { toast } from "sonner";
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 
 const FAQ = () => {
   const { data: faqs, isLoading } = useGetFAQQuery();

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Search, Eye, User, TrendingUp, Play } from "lucide-react";
 import { Link } from "react-router-dom";
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 import { toast } from "sonner";
-import { useGetLiveStreamsQuery } from "@/redux/features/streamMonitoring/streamMonitoringApi";
+import { useGetLiveStreamsQuery } from "../redux/features/streamMonitoring/streamMonitoringApi";
 
 const MonitoringCard = ({ title, value, trend, icon }) => (
   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex flex-col gap-2">

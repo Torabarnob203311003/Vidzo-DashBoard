@@ -18,20 +18,20 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/Components/ui/table";
+} from "../Components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select";
+} from "../Components/ui/select";
 import {
   useCreateChallengeMutation,
   useDeleteChallengeMutation,
   useGetChallengesQuery,
-} from "@/redux/features/challenges/challengesApi";
-import Pagination from "@/Components/shared/Pagination";
+} from "../redux/features/challenges/challengesApi";
+import Pagination from "../Components/shared/Pagination";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CHALLENGE_LEVELS = [

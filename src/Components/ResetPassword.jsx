@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { useResetPasswordMutation } from "../redux/features/auth/authApi";
 
 export default function ResetPassword() {
   const navigate = useNavigate();

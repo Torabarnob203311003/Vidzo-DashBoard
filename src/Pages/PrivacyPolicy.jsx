@@ -1,14 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import { RichTextEditor } from "@/Components/shared/RichTextEditor";
+import { RichTextEditor } from "../Components/shared/RichTextEditor";
 import { useForm } from "react-hook-form";
-import Loader from "@/Components/shared/Loader";
+import Loader from "../Components/shared/Loader";
 import { toast } from "sonner";
 import {
   useCreateDocumentationMutation,
   useGetDocumentationQuery,
   useUpdateDocumentationMutation,
-} from "@/redux/features/documentation/documentationApi";
+} from "../redux/features/documentation/documentationApi";
 
 const PrivacyPolicy = () => {
 

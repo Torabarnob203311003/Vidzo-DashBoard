@@ -10,7 +10,7 @@ import {
   selectPendingFiles,
   selectReplyingTo,
   selectSelectedConversation,
-} from "@/redux/features/message/messageSlice";
+} from "../redux/features/message/messageSlice";
 import {
   formatFileSize,
   getFileIcon,

@@ -3,11 +3,11 @@ import { Camera, Lock, EyeOff, User, Mail, Eye, Save } from "lucide-react";
 import {
   useGetProfileQuery,
   useUpdateProfileMutation,
-} from "@/redux/features/profile/profileApi";
-import Loader from "@/Components/shared/Loader";
+} from "../redux/features/profile/profileApi";
+import Loader from "../Components/shared/Loader";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useChangePasswordMutation } from "@/redux/features/auth/authApi";
+import { useChangePasswordMutation } from "../redux/features/auth/authApi";
 
 const ProfileSettings = () => {
   const [activeTab, setActiveTab] = useState("edit");
