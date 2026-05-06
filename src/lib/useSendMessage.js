@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   addOptimisticMsgs,
-  clearOptimisticMsgs,
   clearPendingFiles,
   clearReplyingTo,
   selectIsSending,
@@ -71,6 +70,10 @@ export const useSendMessage = () => {
   const replyingTo           = useSelector(selectReplyingTo);
   const selectedConversation = useSelector(selectSelectedConversation);
 
+  console.log(isSending,"1")
+  console.log(pendingFiles,"2")
+  console.log(replyingTo,"3")
+  console.log(selectedConversation,"4")
   const handleSend = async ({
     newMessage,
     setNewMessage,
@@ -179,7 +182,6 @@ export const useSendMessage = () => {
           replyToId  : replyingTo?._id || null,
         });
       }
-
       // ── 3. Mark all user messages as read ──────────────
       // Backend: support_mark_read → DB update + notifies user
       emitMarkRead?.(conversationId);
@@ -188,11 +190,6 @@ export const useSendMessage = () => {
       setNewMessage?.("");
       dispatch(clearReplyingTo());
       dispatch(clearPendingFiles());
-
-      // The optimistic messages will be replaced when the server echoes
-      // back  support_new_message  (handled in useAdminSocket → addSocketMessage).
-      // We clear them here so there's no duplicate once the echo arrives.
-      dispatch(clearOptimisticMsgs());
 
       // Refresh sidebar last-message preview + unread counts
       refetchConversations?.();

@@ -69,6 +69,9 @@ export const baseApi = createApi({
     "getStreams",
     "getLiveStreams",
     "getEarnings",
+    "getMessages",
+    "getConversations",
+    "getStreamChat",
   ],
   endpoints: (builder) => ({
     getDashboard: builder.query({

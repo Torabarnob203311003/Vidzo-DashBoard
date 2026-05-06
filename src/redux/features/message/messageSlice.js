@@ -1,5 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const getMessageFileName = (msg) => {
+  const url = msg?.mediaUrl || msg?.file?.url || "";
+  const fallbackName = url.split("/").pop() || "";
+  return msg?.file?.name || msg?.file?.originalName || fallbackName;
+};
+
+const isSameOutgoingFileMessage = (socketMsg, optimisticMsg) => {
+  const socketName = getMessageFileName(socketMsg);
+  const optimisticName = getMessageFileName(optimisticMsg);
+  const socketSize = socketMsg?.file?.size;
+  const optimisticSize = optimisticMsg?.file?.size;
+  const socketMime = socketMsg?.file?.mimeType;
+  const optimisticMime = optimisticMsg?.file?.mimeType;
+
+  if (socketName && optimisticName && socketName === optimisticName) return true;
+  if (socketSize && optimisticSize && socketSize === optimisticSize) return true;
+  if (socketMime && optimisticMime && socketMime === optimisticMime) return true;
+
+  const socketTime = new Date(socketMsg?.createdAt || 0).getTime();
+  const optimisticTime = new Date(optimisticMsg?.createdAt || 0).getTime();
+  return Math.abs(socketTime - optimisticTime) < 2 * 60 * 1000;
+};
+
 const initialState = {
   // ── Conversation ──────────────────────────────────────────
   selectedConversation: null,
@@ -84,13 +107,33 @@ const messageSlice = createSlice({
     // ═══════════════════════════════════════════════════════
 
     addSocketMessage(state, { payload: msg }) {
-      const cid = msg.conversationId;
+      const cid = msg.conversationId || msg.conversation?._id || msg.conversation;
       if (!cid) return;
       if (!state.socketMessages[cid]) state.socketMessages[cid] = [];
+      const normalizedMsg = { ...msg, conversationId: cid };
 
       // Deduplicate by _id
-      const exists = state.socketMessages[cid].some((m) => m._id === msg._id);
-      if (!exists) state.socketMessages[cid].push(msg);
+      const exists = state.socketMessages[cid].some((m) => m._id === normalizedMsg._id);
+      if (!exists) state.socketMessages[cid].push(normalizedMsg);
+
+      // A server echo confirms an admin message that was already shown locally.
+      // Remove the matching optimistic item so the UI swaps to the DB-backed row.
+      if (normalizedMsg.senderRole === "admin") {
+        const optimisticIndex = state.optimisticMsgs.findIndex((m) => {
+          if (m.conversationId !== cid || m.senderRole !== "admin") return false;
+          if (m.type !== normalizedMsg.type || (m.message || "") !== (normalizedMsg.message || "")) return false;
+
+          if (["file", "image"].includes(normalizedMsg.type)) {
+            return isSameOutgoingFileMessage(normalizedMsg, m);
+          }
+
+          return true;
+        });
+
+        if (optimisticIndex !== -1) {
+          state.optimisticMsgs.splice(optimisticIndex, 1);
+        }
+      }
     },
 
     clearSocketMessages(state, { payload: conversationId }) {
@@ -104,8 +147,15 @@ const messageSlice = createSlice({
     addOptimisticMsgs(state, { payload }) {
       state.optimisticMsgs = [...state.optimisticMsgs, ...payload];
     },
-    clearOptimisticMsgs(state) {
-      state.optimisticMsgs = [];
+    clearOptimisticMsgs(state, { payload: conversationId } = {}) {
+      if (!conversationId) {
+        state.optimisticMsgs = [];
+        return;
+      }
+
+      state.optimisticMsgs = state.optimisticMsgs.filter(
+        (msg) => msg.conversationId !== conversationId
+      );
     },
 
     // ═══════════════════════════════════════════════════════

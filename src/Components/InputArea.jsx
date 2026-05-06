@@ -104,7 +104,7 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
   };
 
   return (
-    <div className="bg-white border-t border-gray-100 px-4 py-3 flex-shrink-0">
+    <div className="bg-white border-t border-slate-200 px-6 py-5 flex-shrink-0 shadow-inner shadow-slate-100/50">
 
       {/* Reply banner */}
       {replyingTo && (
@@ -131,7 +131,7 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
 
       {/* Pending files preview */}
       {pendingFiles.length > 0 && (
-        <div className="mb-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+        <div className="mb-3 p-4 rounded-[1.75rem] bg-slate-50 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-gray-500">
               {pendingFiles.length} file{pendingFiles.length > 1 ? "s" : ""} to send
@@ -144,15 +144,15 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3 items-end">
             {pendingFiles.map((f, i) => (
               <div key={i} className="relative group/pf">
                 {f.mimeType.startsWith("image/") ? (
-                  <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-yellow-300 shadow-sm">
+                  <div className="w-16 h-16 rounded-3xl overflow-hidden border-2 border-yellow-300 shadow-sm">
                     <img src={f.url} className="w-full h-full object-cover" alt="" />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 rounded-xl border-2 border-gray-200 bg-white flex flex-col items-center justify-center gap-1 shadow-sm">
+                  <div className="w-16 h-16 rounded-3xl border-2 border-slate-200 bg-white flex flex-col items-center justify-center gap-1 shadow-sm">
                     {(() => { const { icon: Icon, color } = getFileIcon(f.mimeType); return <Icon size={18} color={color} />; })()}
                     <span className="text-[9px] text-gray-400 truncate w-12 text-center px-1">
                       {f.name.split(".").pop()?.toUpperCase()}
@@ -177,7 +177,7 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-yellow-400 flex items-center justify-center text-gray-300 hover:text-yellow-400 transition"
+              className="w-16 h-16 rounded-[1.5rem] border-2 border-dashed border-slate-300 hover:border-amber-400 flex items-center justify-center text-slate-400 hover:text-amber-500 transition"
             >
               <Paperclip size={16} />
             </button>
@@ -186,12 +186,12 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
       )}
 
       {/* Input row */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition flex-shrink-0"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-3xl border border-slate-200 bg-slate-50 text-slate-500 hover:border-amber-300 hover:bg-amber-50 transition"
         >
           <Paperclip size={18} />
         </button>
@@ -204,19 +204,19 @@ const InputArea = ({ onSend, emitTyping, emitStopTyping, adminUserId }) => {
             onBlur={handleStopTyping}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder={
-              pendingFiles.length > 0 ? "Add a caption…" : replyingTo ? "Type your reply…" : "Type a message…"
+              pendingFiles.length > 0 ? "Add a caption…" : replyingTo ? "Type your reply…" : "Write a message…"
             }
-            className="w-full bg-gray-100 rounded-2xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-yellow-300 transition pr-10"
+            className="w-full bg-slate-100 rounded-[1.75rem] px-5 py-4 text-sm text-slate-900 placeholder-slate-500 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition pr-14"
           />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
-            <Smile size={17} />
+          <button className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+            <Smile size={18} />
           </button>
         </div>
 
         <button
           onClick={canSend ? handleSend : undefined}
           disabled={!canSend}
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 disabled:cursor-not-allowed"
+          className="w-14 h-14 rounded-[1.5rem] flex items-center justify-center flex-shrink-0 transition-all hover:scale-[1.03] disabled:cursor-not-allowed"
           style={{ background: canSend ? GOLD : "#E5E7EB" }}
         >
           {isSending

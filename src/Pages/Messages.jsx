@@ -55,7 +55,7 @@
  * └─────────────────────────────────────────────────────────────────────────────┘
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ArrowLeft, Send } from "lucide-react";
 
@@ -103,7 +103,15 @@ const Messages = () => {
     refetch: refetchConversations,
   } = useGetAllConversationsQuery();
 
-  const conversations = conversationsData?.data || [];
+  const conversations = useMemo(() => conversationsData?.data || [], [conversationsData?.data]);
+  const conversationIds = useMemo(
+    () => conversations.map((conversation) => conversation._id).filter(Boolean),
+    [conversations]
+  );
+
+  const handleSocketMessage = useCallback(() => {
+    refetchConversations();
+  }, [refetchConversations]);
 
   // ── Socket — full event integration ──────────────────────────
   const {
@@ -112,7 +120,7 @@ const Messages = () => {
     emitStopTyping,
     emitMarkRead,
     emitUpdateStatus,
-  } = useAdminSocket(adminUser?.id);
+  } = useAdminSocket(adminUser?.id, conversationIds, handleSocketMessage);
 
   // ── Send message ─────────────────────────────────────────────
   const { handleSend } = useSendMessage();
@@ -170,26 +178,30 @@ const Messages = () => {
   }
 
   return (
-<div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }} className="flex h-[calc(100vh-5rem)] bg-gray-50 overflow-hidden">
+    <div className="flex h-[calc(100vh-5rem)] min-h-[calc(100vh-5rem)] bg-slate-100 text-slate-900 overflow-hidden">
 
       {/* Sidebar */}
-      <div className={`${selectedConversation ? "hidden md:block" : "block"}`}>
-        <ConversationSidebar conversations={conversations} />
+      <div className={`${selectedConversation ? "hidden xl:block" : "block xl:block"} w-full max-w-[22.5rem] shrink-0`}>
+        <div className="h-full rounded-[2rem] border border-slate-200 bg-white shadow-[0_40px_120px_-80px_rgba(15,23,42,0.2)] overflow-hidden">
+          <ConversationSidebar conversations={conversations} />
+        </div>
       </div>
 
       {/* Chat Area */}
       {!selectedConversation ? (
-        <div className="hidden md:flex flex-1">
+        <div className="hidden md:flex flex-1 items-center justify-center p-8">
           <EmptyState />
         </div>
       ) : (
         <div
           ref={chatAreaRef}
-          className="flex-1 flex flex-col min-w-0 relative"
+          className="flex-1 flex flex-col min-w-0 min-h-0 relative overflow-hidden"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(249,115,22,0.12),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.08),_transparent_30%)] pointer-events-none" />
+          <div className="relative z-10 h-full flex flex-col min-h-0 bg-white shadow-[0_20px_80px_-28px_rgba(15,23,42,0.14)]">
           <DropOverlay active={dragOver} />
 
           <div className="md:hidden bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
@@ -214,13 +226,16 @@ const Messages = () => {
           <MessageList emitMarkRead={emitMarkRead} />
 
           {/* Input — emits support_typing / support_stop_typing */}
-          <InputArea
-            onSend={onSend}
-            emitTyping={emitTyping}
-            emitStopTyping={emitStopTyping}
-            adminUserId={adminUser?.id}
-          />
+          <div className="border-t border-slate-200 bg-slate-50">
+            <InputArea
+              onSend={onSend}
+              emitTyping={emitTyping}
+              emitStopTyping={emitStopTyping}
+              adminUserId={adminUser?.id}
+            />
+          </div>
         </div>
+      </div>
       )}
 
       {/* Lightbox — full-screen image viewer */}
@@ -231,7 +246,15 @@ const Messages = () => {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap');
-        ::-webkit-scrollbar { width: 0; }
+        .scrollbar-hidden {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hidden::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+          display: none;
+        }
       `}</style>
     </div>
   );

@@ -21,7 +21,6 @@ const streamApi = baseApi.injectEndpoints({
           body: data,
         };
       },
-      invalidatesTags: ["getStreams"],
     }),
     endStream: builder.mutation({
       query: ({ id, data }) => {
@@ -31,23 +30,34 @@ const streamApi = baseApi.injectEndpoints({
           body: data,
         };
       },
-      invalidatesTags: ["getStreams"],
+      invalidatesTags: ["getStreams", "getLiveStreams"],
     }),
     sendChatMessage: builder.mutation({
       query: ({ id, data }) => {
         return {
-          url: `admin/stream/${id}/chat`,
+          url: `stream/${id}/chat`,
           method: "POST",
           body: data,
         };
       },
-      invalidatesTags: ["getStreams"],
+      invalidatesTags: ["getStreamChat"],
+    }),
+    getStreamChat: builder.query({
+      query: ({ id, page = 1, limit = 50 }) => {
+        return {
+          url: `stream/${id}/chat`,
+          method: "GET",
+          params: { page, limit },
+        };
+      },
+      providesTags: ["getStreamChat"],
     }),
   }),
 });
 
 export const {
   useGetStreamByIdQuery,
+  useGetStreamChatQuery,
   useSendChatMessageMutation,
   useEndStreamMutation,
   useGiveWarningMutation,

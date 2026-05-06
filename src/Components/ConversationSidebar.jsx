@@ -30,8 +30,8 @@ const ConversationItem = ({ conv, isSelected }) => {
   return (
     <button
       onClick={() => dispatch(setSelectedConversation(conv))}
-      className={`w-full flex items-center gap-3 px-4 py-3.5 transition-all text-left relative ${
-        isSelected ? "bg-yellow-50" : "hover:bg-gray-50"
+      className={`w-full flex items-center gap-3 px-4 py-4 transition-all text-left relative rounded-[1.5rem] border bg-white ${
+        isSelected ? "border-amber-300 bg-amber-50 shadow-[0_8px_30px_-18px_rgba(251,191,36,0.9)]" : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
       }`}
     >
       {/* Active indicator bar */}
@@ -57,19 +57,19 @@ const ConversationItem = ({ conv, isSelected }) => {
 
       {/* Text */}
       <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-center">
-          <span className={`text-sm font-bold truncate ${isSelected ? "text-yellow-700" : "text-gray-900"}`}>
+        <div className="flex justify-between items-center gap-3">
+          <span className={`text-sm font-semibold truncate ${isSelected ? "text-slate-950" : "text-slate-900"}`}>
             {conv.user?.name || "Unknown"}
           </span>
-          <span className="text-[10px] text-gray-400 ml-2 flex-shrink-0">
+          <span className="text-[10px] text-slate-400 flex-shrink-0">
             {formatLastMessageTime(conv.lastMessageAt)}
           </span>
         </div>
-        <div className="flex items-center justify-between mt-0.5">
-          <p className="text-xs text-gray-400 truncate">{conv.lastMessage || "No messages yet"}</p>
+        <div className="flex items-center justify-between gap-3 mt-1">
+          <p className="text-xs text-slate-500 truncate">{conv.lastMessage || "No messages yet"}</p>
           {totalUnread > 0 && (
             <span
-              className="ml-2 w-4 h-4 text-[10px] font-black text-white rounded-full flex items-center justify-center flex-shrink-0"
+              className="ml-2 w-5 h-5 text-[10px] font-black text-white rounded-full flex items-center justify-center flex-shrink-0"
               style={{ background: GOLD }}
             >
               {totalUnread > 9 ? "9+" : totalUnread}
@@ -103,13 +103,16 @@ const ConversationSidebar = ({ conversations }) => {
   }, 0);
 
   return (
-    <div className="w-72 bg-white flex flex-col border-r border-gray-100 shadow-sm flex-shrink-0">
+    <div className="w-full h-full flex flex-col min-h-0 bg-white">
       {/* Header */}
-      <div className="px-5 pt-6 pb-3">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="text-xl font-black text-gray-900 tracking-tight">Messages</h1>
+      <div className="px-6 pt-6 pb-4 border-b border-slate-200">
+        <div className="flex items-start justify-between gap-3 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">Support inbox</p>
+            <h1 className="mt-2 text-2xl font-black text-slate-950 leading-tight">Conversations</h1>
+          </div>
           {totalUnread > 0 && (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: GOLD }}>
+            <span className="mt-1 inline-flex items-center justify-center rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
               {totalUnread > 99 ? "99+" : totalUnread}
             </span>
           )}
@@ -117,20 +120,20 @@ const ConversationSidebar = ({ conversations }) => {
 
         {/* Search */}
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={(e) => dispatch(setSearch(e.target.value))}
-            placeholder="Search..."
-            className="w-full bg-gray-100 rounded-xl pl-9 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-yellow-300 transition"
+            placeholder="Search by name or email"
+            className="w-full border border-slate-200 bg-slate-50 rounded-3xl pl-12 pr-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition"
           />
         </div>
       </div>
 
       {/* Conversation list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hidden min-h-0">
         {filtered.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-gray-400">No conversations found</div>
+          <div className="px-5 py-10 text-center text-sm text-slate-400">No conversations found</div>
         ) : (
           filtered.map((conv) => (
             <ConversationItem

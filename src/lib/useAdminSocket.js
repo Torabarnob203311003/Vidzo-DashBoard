@@ -13,6 +13,7 @@ import {
   setUserOnline,
   updateConversationStatus,
 } from "@/redux/features/message/messageSlice";
+import { baseApi } from "@/redux/services/API";
 import { SOCKET_URL } from "../lib/constants";
 
 /**
@@ -37,17 +38,41 @@ import { SOCKET_URL } from "../lib/constants";
  *   emitMarkRead(conversationId)
  *   emitUpdateStatus(conversationId, status, adminId)
  */
-export const useAdminSocket = (adminUserId) => {
+export const useAdminSocket = (adminUserId, conversationIds = [], onMessage) => {
   const dispatch             = useDispatch();
   const socketRef            = useRef(null);
+  const conversationIdsRef   = useRef([]);
+  const onMessageRef         = useRef(onMessage);
+  const joinedConversationIdsRef = useRef(new Set());
+  const selectedConversationRef = useRef(null);
   const selectedConversation = useSelector(selectSelectedConversation);
+
+  useEffect(() => {
+    conversationIdsRef.current = conversationIds;
+  }, [conversationIds]);
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  useEffect(() => {
+    selectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
 
   // ── Emitter helpers (stable refs) ──────────────────────────
   const emitJoinConversation = useCallback((conversationId) => {
     if (socketRef.current?.connected && conversationId) {
+      if (joinedConversationIdsRef.current.has(conversationId)) return;
       socketRef.current.emit("support_join_conversation", conversationId);
+      joinedConversationIdsRef.current.add(conversationId);
     }
   }, []);
+
+  const emitJoinConversations = useCallback((ids = []) => {
+    ids.forEach((conversationId) => {
+      emitJoinConversation(conversationId);
+    });
+  }, [emitJoinConversation]);
 
   const emitTyping = useCallback((conversationId, senderId) => {
     if (socketRef.current?.connected) {
@@ -91,27 +116,38 @@ export const useAdminSocket = (adminUserId) => {
   useEffect(() => {
     if (!adminUserId) return;
 
+    const joinedConversationIds = joinedConversationIdsRef.current;
     const socket = io(SOCKET_URL, { reconnection: true, reconnectionDelay: 1000 });
     socketRef.current = socket;
 
     // ── connect ──────────────────────────────────────────────
     socket.on("connect", () => {
       console.log("[socket] connected:", socket.id);
+      joinedConversationIds.clear();
 
       // Identify as admin
       socket.emit("support_user_join", { userId: adminUserId, role: "admin" });
 
-      // Re-join active conversation room (handles reconnects)
-      if (selectedConversation?._id) {
-        socket.emit("support_join_conversation", selectedConversation._id);
+      // The backend only emits support_new_message to conversation_${id}.
+      // Join every loaded support room so user messages arrive instantly.
+      emitJoinConversations(conversationIdsRef.current);
+
+      // Fallback for a selected conversation that is not in the loaded list yet.
+      if (selectedConversationRef.current?._id) {
+        emitJoinConversation(selectedConversationRef.current._id);
       }
     });
 
     // ── support_new_message ───────────────────────────────────
     // Backend: io.to(`conversation_${conversationId}`).emit('support_new_message', {...})
-    socket.on("support_new_message", (msg) => {
+    const handleIncomingMessage = (msg) => {
       dispatch(addSocketMessage(msg));
-    });
+      dispatch(baseApi.util.invalidateTags(["getMessages", "getConversations"]));
+      onMessageRef.current?.(msg);
+    };
+
+    socket.on("new_message", handleIncomingMessage);
+    socket.on("support_new_message", handleIncomingMessage);
 
     // ── support_user_typing ───────────────────────────────────
     socket.on("support_user_typing", ({ conversationId, senderId, senderRole }) => {
@@ -139,6 +175,8 @@ export const useAdminSocket = (adminUserId) => {
     // ── support_notification ──────────────────────────────────
     socket.on("support_notification", (payload) => {
       dispatch(addNotification(payload));
+      dispatch(baseApi.util.invalidateTags(["getMessages", "getConversations"]));
+      onMessageRef.current?.(payload);
     });
 
     // ── support_user_online ───────────────────────────────────
@@ -165,9 +203,11 @@ export const useAdminSocket = (adminUserId) => {
     // ── disconnect ────────────────────────────────────────────
     socket.on("disconnect", (reason) => {
       console.warn("[socket] disconnected:", reason);
+      joinedConversationIds.clear();
     });
 
     return () => {
+      joinedConversationIds.clear();
       socket.disconnect();
       socketRef.current = null;
     };
@@ -179,9 +219,14 @@ export const useAdminSocket = (adminUserId) => {
     emitJoinConversation(selectedConversation?._id);
   }, [selectedConversation?._id, emitJoinConversation]);
 
+  useEffect(() => {
+    emitJoinConversations(conversationIds);
+  }, [conversationIds, emitJoinConversations]);
+
   return {
     socketRef,
     emitJoinConversation,
+    emitJoinConversations,
     emitTyping,
     emitStopTyping,
     emitMarkRead,

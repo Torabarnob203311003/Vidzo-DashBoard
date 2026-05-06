@@ -30,71 +30,67 @@ const ChatHeader = ({ onUpdateStatus }) => {
   if (!selectedConversation) return null;
 
   return (
-    <div className="bg-white border-b border-gray-100 px-6 py-3.5 flex items-center justify-between flex-shrink-0 z-10">
-      <div className="flex items-center gap-3">
-        {/* Avatar + online dot */}
-        <div className="relative">
-          {selectedConversation.user?.image
-            ? <img src={selectedConversation.user.image} className="w-10 h-10 rounded-full object-cover" alt="" />
-            : <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-                {selectedConversation.user?.name?.[0]?.toUpperCase() || "U"}
-              </div>
-          }
-          {/* Online indicator dot */}
-          {isOnline && (
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white" />
-          )}
-        </div>
-
-        <div>
-          <h2 className="font-bold text-gray-900 text-sm">{selectedConversation.user?.name || "User"}</h2>
-          <div className="flex items-center gap-2">
-            <p className="text-xs text-gray-400">
-              {isOnline ? "Online" : "Last seen recently"}
-            </p>
-            {/* Live status badge */}
-            {statusMeta && (
-              <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusMeta.dot }} />
-                <span style={{ color: statusMeta.dot }}>{statusMeta.label}</span>
-              </span>
+    <div className="bg-white border-b border-slate-200 px-6 py-5 flex flex-col gap-4 flex-shrink-0 z-10 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-shrink-0">
+            {selectedConversation.user?.image
+              ? <img src={selectedConversation.user.image} className="w-14 h-14 rounded-3xl object-cover shadow-sm" alt="" />
+              : <div className="w-14 h-14 rounded-3xl bg-slate-200 flex items-center justify-center text-slate-600 font-black text-lg">
+                  {selectedConversation.user?.name?.[0]?.toUpperCase() || "U"}
+                </div>
+            }
+            {isOnline && (
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white" />
             )}
           </div>
+
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-semibold">Active conversation</p>
+            <h2 className="mt-2 text-lg font-bold text-slate-950">{selectedConversation.user?.name || "User"}</h2>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-slate-500">
+              <span>{isOnline ? "Online now" : "Last seen recently"}</span>
+              {statusMeta && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-700">
+                  <span className="w-2 h-2 rounded-full" style={{ background: statusMeta.dot }} />
+                  {statusMeta.label}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-1">
-        <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-          <Phone size={16} />
-        </button>
-        <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-          <Video size={16} />
-        </button>
-
-        {/* Status dropdown — emits support_update_status via parent */}
-        <div className="relative group">
-          <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-            <MoreVertical size={16} />
+        <div className="flex items-center gap-2">
+          <button className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            <Phone size={18} />
           </button>
-          <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 hidden group-hover:block">
+          <button className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            <Video size={18} />
+          </button>
+          <div className="relative group">
+            <button className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              <MoreVertical size={18} />
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-3xl shadow-2xl border border-slate-200 py-1 z-20 hidden group-hover:block">
             {STATUSES.map((s) => (
               <button
                 key={s}
                 onClick={() => onUpdateStatus(s)}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 capitalize transition flex items-center gap-2 ${
-                  liveStatus === s ? "font-semibold text-gray-900" : "text-gray-600"
+                className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-50 capitalize transition flex items-center gap-3 ${
+                  liveStatus === s ? "font-semibold text-slate-900" : "text-slate-600"
                 }`}
               >
                 <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ background: STATUS_COLORS[s]?.dot || "#6B7280" }}
                 />
                 {s.replace("-", " ")}
-                {liveStatus === s && <span className="ml-auto text-[10px] text-gray-400">Current</span>}
+                {liveStatus === s && <span className="ml-auto text-[11px] text-slate-400">Active</span>}
               </button>
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

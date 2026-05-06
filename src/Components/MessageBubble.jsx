@@ -31,12 +31,12 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
   return (
     <div
       ref={messageRef}
-      className={`flex ${isMe ? "justify-end" : "justify-start"} items-end gap-2 group`}
-      style={{ marginBottom: 2, borderRadius: 8, transition: "background 0.3s" }}
+      className={`flex ${isMe ? "justify-end" : "justify-start"} items-end gap-2 group px-1 py-1`}
+      style={{ transition: "background 0.3s" }}
     >
       {/* Other-user avatar */}
       {!isMe && (
-        <div className="w-7 h-7 rounded-full flex-shrink-0 mb-5 overflow-hidden bg-gray-200">
+        <div className="w-8 h-8 rounded-full flex-shrink-0 mb-5 overflow-hidden bg-white border border-gray-200 shadow-sm">
           {msg.sender?.image
             ? <img src={msg.sender.image} className="w-full h-full object-cover" alt="" />
             : <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs font-bold">
@@ -46,19 +46,18 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
         </div>
       )}
 
-      <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-xs lg:max-w-sm`}>
+      <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-[82%] sm:max-w-md lg:max-w-lg`}>
 
         {/* Reply preview */}
         {replyTarget && (
           <button
             onClick={() => scrollToMessage(replyTarget._id)}
-            className="mb-1 px-3 py-1.5 rounded-xl border-l-[3px] text-left max-w-full hover:opacity-80 transition"
-            style={{ background: "#FFF3CD", borderColor: GOLD }}
+            className="mb-2 px-3 py-2 rounded-[1.5rem] border border-slate-200 bg-slate-50 text-left max-w-full hover:bg-slate-100 transition"
           >
-            <div className="text-[10px] font-bold mb-0.5" style={{ color: GOLD_DARK }}>
-              {isAdminMessage(replyTarget) ? "You" : selectedConversation?.user?.name}
+            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              {isAdminMessage(replyTarget) ? "Your reply" : selectedConversation?.user?.name}
             </div>
-            <div className="text-xs text-gray-600 truncate">
+            <div className="mt-1 text-xs text-slate-600 truncate">
               {replyTarget.type === "image"
                 ? "📷 Image"
                 : replyTarget.type === "file"
@@ -72,12 +71,12 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
           {/* Text bubble */}
           {isTextMsg && msg.message && (
             <div
-              className={`px-4 py-2.5 text-sm leading-relaxed break-words rounded-2xl ${
+              className={`px-5 py-3 text-sm leading-relaxed break-words rounded-[28px] shadow-sm ${
                 isMe
-                  ? "text-white rounded-br-sm"
-                  : "bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100"
-              } ${isOptimistic ? "opacity-60" : ""}`}
-              style={isMe ? { background: GOLD } : {}}
+                  ? "text-white rounded-tr-[28px] rounded-bl-[28px]"
+                  : "bg-white text-slate-900 rounded-tl-[28px] rounded-br-[28px] border border-slate-200"
+              } ${isOptimistic ? "opacity-75" : ""}`}
+              style={isMe ? { background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_DARK} 100%)` } : { boxShadow: "0 10px 24px -18px rgba(15,23,42,0.24)" }}
             >
               {msg.message}
             </div>
@@ -86,10 +85,10 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
           {/* Image bubble */}
           {isImageMsg && getMessageMediaUrl(msg) && (
             <div
-              className={`rounded-2xl overflow-hidden ${
-                isMe ? "rounded-br-sm" : "rounded-bl-sm shadow-sm"
-              } ${isOptimistic ? "opacity-60" : ""}`}
-              style={isMe ? { outline: `3px solid ${GOLD}`, outlineOffset: 1 } : {}}
+              className={`rounded-[26px] overflow-hidden ${
+                isMe ? "rounded-tr-[26px] rounded-bl-[26px]" : "rounded-tl-[26px] rounded-br-[26px] shadow-sm"
+              } ${isOptimistic ? "opacity-75" : ""}`}
+              style={isMe ? { outline: `3px solid ${GOLD}`, outlineOffset: 1 } : { boxShadow: "0 10px 24px -18px rgba(15,23,42,0.20)" }}
             >
               <ImageBubble msg={msg} onPreview={handlePreviewImage} />
             </div>
@@ -98,10 +97,10 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
           {/* File bubble */}
           {isFileMsg && (
             <div
-              className={`rounded-2xl overflow-hidden ${
-                isMe ? "rounded-br-sm" : "rounded-bl-sm shadow-sm border border-gray-100"
-              } ${isOptimistic ? "opacity-60" : ""}`}
-              style={isMe ? { background: GOLD } : {}}
+              className={`rounded-[26px] overflow-hidden ${
+                isMe ? "rounded-tr-[26px] rounded-bl-[26px]" : "rounded-tl-[26px] rounded-br-[26px] shadow-sm border border-slate-200"
+              } ${isOptimistic ? "opacity-75" : ""}`}
+              style={isMe ? { background: GOLD } : { background: "#FBFBFC" }}
             >
               <FileBubble msg={msg} isMe={isMe} />
             </div>
@@ -117,6 +116,7 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
               <button
                 onClick={handleReply}
                 className="p-1.5 bg-white hover:bg-gray-50 rounded-full shadow-sm border border-gray-100 transition"
+                aria-label="Reply to message"
               >
                 <Reply size={13} className="text-gray-500" />
               </button>
@@ -125,25 +125,23 @@ const MessageBubble = ({ msg, messageRef, scrollToMessage, chatImages }) => {
         </div>
 
         {/* Timestamp + read receipt */}
-        <div className="flex items-center gap-1 mt-1 px-1">
-          <span className="text-[10px] text-gray-400">
-            {isOptimistic ? "Sending…" : formatTime(msg.createdAt)}
-          </span>
+        <div className="flex items-center gap-2 mt-2 px-1 text-[11px] text-slate-500">
+          <span>{isOptimistic ? "Sending…" : formatTime(msg.createdAt)}</span>
           {isMe && !isOptimistic && (
             msg.isRead
-              ? <CheckCheck size={12} style={{ color: GOLD }} />
-              : <Check size={12} className="text-gray-400" />
+              ? <CheckCheck size={14} className="text-amber-500" />
+              : <Check size={14} className="text-slate-400" />
           )}
           {isMe && isOptimistic && (
-            <div className="w-2.5 h-2.5 rounded-full border border-gray-400 border-t-transparent animate-spin" />
+            <div className="w-3 h-3 rounded-full border border-slate-400 border-t-transparent animate-spin" />
           )}
         </div>
       </div>
 
       {/* Admin avatar */}
       {isMe && (
-        <div className="w-7 h-7 rounded-full flex-shrink-0 mb-5 overflow-hidden bg-gray-200">
-          <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-600">A</div>
+        <div className="w-8 h-8 rounded-full flex-shrink-0 mb-5 overflow-hidden border border-yellow-200 shadow-sm" style={{ background: "#FFF7D6" }}>
+          <div className="w-full h-full flex items-center justify-center text-xs font-black" style={{ color: GOLD_DARK }}>A</div>
         </div>
       )}
     </div>
