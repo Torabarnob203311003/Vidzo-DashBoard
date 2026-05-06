@@ -26,7 +26,7 @@ const subscriptionsApi = baseApi.injectEndpoints({
       query: ({ id, data }) => {
         return {
           url: `subscription/admin/tiers/${id}`,
-          method: "PATCH",
+          method: "PUT",
           body: data,
         };
       },

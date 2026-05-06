@@ -104,7 +104,7 @@ function FileUploadContent({
               {fileName}
             </p>
           )}
-          {(defaultValue && !fileName) && (
+          {(defaultValue && !fileName && typeof defaultValue === 'string') && (
             <p className="text-sm text-green-600 font-semibold mt-1">
               {defaultValue.split('-').pop()}
             </p>

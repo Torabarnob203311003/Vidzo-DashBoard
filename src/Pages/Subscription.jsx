@@ -1,6 +1,30 @@
-import { useState } from "react";
-import { Plus, Edit2, Trash2, X } from "lucide-react";
-import { Table, TableBody, TableRow, TableCell, TableHead, TableHeader } from "../Components/ui/table";
+"use client";
+
+import { useState, useCallback, useMemo } from "react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Check,
+  Crown,
+  Sparkles,
+  Star,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead,
+  TableHeader,
+} from "../Components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../Components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -8,6 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../Components/ui/select";
+import { Switch } from "../Components/ui/switch";
+import { Badge } from "../Components/ui/badge";
+import { Button } from "../Components/ui/button";
+import { Input } from "../Components/ui/input";
+import { Label } from "../Components/ui/label";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import FileUpload from "../Components/shared/UploadFile";
@@ -19,154 +48,308 @@ import {
 } from "../redux/features/subscription/subscriptionApi";
 import Loader from "../Components/shared/Loader";
 
-const typeColor = (t) =>
-  ({ Basic: "#e0f2fe", Standard: "#ede9fe", Premium: "#fef9c3" }[t] || "#f1f5f9");
-const typeText = (t) =>
-  ({ Basic: "#0369a1", Standard: "#6d28d9", Premium: "#92400e" }[t] || "#475569");
+// ===================== CONSTANTS =====================
+const BOOLEAN_FIELDS = [
+  { key: "adFree", label: "Ad-Free Experience" },
+  { key: "chatBadge", label: "Chat Badge" },
+  { key: "creatorOnlyPosts", label: "Creator-Only Posts" },
+  { key: "earlyStreamAccess", label: "Early Stream Access" },
+  { key: "vipRoomAccess", label: "VIP Room Access" },
+  { key: "directQA", label: "Direct Q&A" },
+  { key: "earlyContentAccess", label: "Early Content Access" },
+];
 
+const DEFAULT_FLAGS = {
+  adFree: true,
+  chatBadge: false,
+  creatorOnlyPosts: true,
+  earlyStreamAccess: false,
+  vipRoomAccess: false,
+  directQA: false,
+  earlyContentAccess: false,
+};
+
+const BILLING_PERIODS = [
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly", label: "Yearly" },
+  { value: "lifetime", label: "Lifetime" },
+];
+
+// ===================== TIER STYLES =====================
+const getTierStyles = (name) => {
+  const styles = {
+    Supporter: {
+      bg: "bg-amber-50",
+      text: "text-amber-700",
+      border: "border-amber-200",
+      icon: <Star className="h-4 w-4" />,
+    },
+    Premium: {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      border: "border-violet-200",
+      icon: <Sparkles className="h-4 w-4" />,
+    },
+    Exclusive: {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      border: "border-emerald-200",
+      icon: <Crown className="h-4 w-4" />,
+    },
+  };
+  return (
+    styles[name] || {
+      bg: "bg-slate-50",
+      text: "text-slate-700",
+      border: "border-slate-200",
+      icon: null,
+    }
+  );
+};
+
+// ===================== FORM DATA BUILDER =====================
 const buildFormData = (data) => {
   const formData = new FormData();
-  Object.entries(data).forEach(([key, value]) => {
-    if (value === undefined || value === null) return;
-    if (Array.isArray(value)) {
-      value.forEach((item) => formData.append(key, item));
-    } else if (value instanceof File) {
-      formData.append(key, value);
-    } else if (typeof value === "boolean") {
-      formData.append(key, value.toString());
-    } else {
-      formData.append(key, value);
-    }
+
+  formData.append("name", data.name);
+  formData.append("slug", data.slug);
+  formData.append("price", data.price);
+  formData.append("billingPeriod", data.billingPeriod);
+  formData.append("isActive", data.isActive);
+
+  if (data.badgeDisplayName) {
+    formData.append("badge[displayName]", data.badgeDisplayName);
+  }
+  if (data.badgeIcon instanceof File) {
+    formData.append("badgeIcon", data.badgeIcon);
+  }
+
+  data.features?.forEach((f, i) => {
+    formData.append(`features[${i}]`, f);
   });
+
+  BOOLEAN_FIELDS.forEach(({ key }) => {
+    formData.append(key, data[key] ? "true" : "false");
+  });
+
+  formData.append("pulsePointsBonus", data.pulsePointsBonus || 0);
+  formData.append("marketplaceDiscount", data.marketplaceDiscount || 0);
+
   return formData;
 };
 
-const FeatureTags = ({ features, onRemove }) => (
-  <div className="flex flex-wrap gap-2 mb-3">
-    {features.map((f, i) => (
-      <span
-        key={i}
-        className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold"
-        style={{ background: "#FFF3CD", color: "#92400e" }}
-      >
-        {f}
-        <button type="button" onClick={() => onRemove(i)} className="text-yellow-700 hover:text-yellow-900">
-          <X size={13} />
-        </button>
-      </span>
-    ))}
-  </div>
+// ===================== DELETE CONFIRM DIALOG =====================
+const DeleteConfirmDialog = ({
+  packageName,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}) => (
+  <Dialog open onOpenChange={onCancel}>
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold text-slate-900">
+          Delete Package
+        </DialogTitle>
+      </DialogHeader>
+      <p className="text-slate-600 py-4">
+        Are you sure you want to delete{" "}
+        <strong className="text-slate-900">{packageName}</strong>? This action
+        cannot be undone.
+      </p>
+      <div className="flex gap-3 justify-end">
+        <Button
+          variant="outline"
+          onClick={onCancel}
+          disabled={isDeleting}
+          className="rounded-xl border-slate-200"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={onConfirm}
+          disabled={isDeleting}
+          className="rounded-xl bg-red-500 hover:bg-red-600 text-white"
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
 );
 
-const Toggle = ({ value, onChange }) => (
-  <div className="flex items-center gap-3">
-    <button
-      type="button"
-      onClick={() => onChange(!value)}
-      className="relative w-12 h-6 rounded-full transition-colors"
-      style={{ background: value ? "#FFC12D" : "#d1d5db" }}
-    >
-      <span
-        className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
-        style={{ left: value ? "26px" : "2px" }}
-      />
-    </button>
-    <span className="text-sm text-slate-500">{value ? "Active" : "Inactive"}</span>
-  </div>
-);
-
-const PackageModal = ({ isEdit, defaultValues, onClose, onSubmit, isSaving }) => {
+// ===================== PACKAGE MODAL =====================
+const PackageModal = ({
+  isEdit,
+  defaultValues,
+  onClose,
+  onSubmit,
+  isSaving,
+}) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
     control,
+    formState: { errors },
   } = useForm({
-    defaultValues: defaultValues || {},
+    defaultValues: {
+      name: defaultValues?.name || "",
+      slug: defaultValues?.slug || "",
+      price: defaultValues?.price || "",
+      billingPeriod: defaultValues?.billingPeriod || "monthly",
+      badgeDisplayName:
+        defaultValues?.badge?.displayName ||
+        defaultValues?.badgeDisplayName ||
+        "",
+      pulsePointsBonus: defaultValues?.pulsePointsBonus || 0,
+      marketplaceDiscount: defaultValues?.marketplaceDiscount || 0,
+    },
   });
 
   const [features, setFeatures] = useState(defaultValues?.features || []);
-  const [featInput, setFeatInput] = useState("");
-  const [isActive, setIsActive] = useState(defaultValues?.status ?? true);
+  const [newFeature, setNewFeature] = useState("");
+  const [isActive, setIsActive] = useState(defaultValues?.isActive ?? true);
 
-  const addFeature = () => {
-    const val = featInput.trim();
-    if (val) { setFeatures((p) => [...p, val]); setFeatInput(""); }
-  };
+  const [flags, setFlags] = useState(() => {
+    const initialFlags = { ...DEFAULT_FLAGS };
+    BOOLEAN_FIELDS.forEach(({ key }) => {
+      if (defaultValues?.[key] !== undefined) {
+        initialFlags[key] = defaultValues[key];
+      }
+    });
+    return initialFlags;
+  });
 
-  const removeFeature = (i) => setFeatures((p) => p.filter((_, idx) => idx !== i));
+  const addFeature = useCallback(() => {
+    const trimmed = newFeature.trim();
+    if (trimmed && !features.includes(trimmed)) {
+      setFeatures((prev) => [...prev, trimmed]);
+      setNewFeature("");
+    }
+  }, [newFeature, features]);
+
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addFeature();
+      }
+    },
+    [addFeature],
+  );
+
+  const removeFeature = useCallback(
+    (index) => setFeatures((prev) => prev.filter((_, i) => i !== index)),
+    [],
+  );
+
+  const updateFlag = useCallback(
+    (key, value) => setFlags((prev) => ({ ...prev, [key]: value })),
+    [],
+  );
 
   const submit = (data) =>
     onSubmit({
       ...data,
-      price: parseFloat(data.price), // fix: number not string
+      price: parseFloat(data.price),
       features,
-      status: isActive,
+      isActive,
+      ...flags,
     });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40">
-      <div className="bg-white w-full max-w-xl rounded-[40px] p-6 sm:p-10 relative max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onClick={onClose} className="absolute top-8 right-8">
-          <X size={32} />
-        </button>
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-slate-900">
+            {isEdit ? "Update Package" : "Add New Package"}
+          </DialogTitle>
+        </DialogHeader>
 
-        <h3 className="text-3xl font-black mb-10 text-[#1E293B]">
-          {isEdit ? "Update Package" : "Add New Package"}
-        </h3>
-
-        <form className="space-y-6" onSubmit={handleSubmit(submit)}>
-          {/* Name */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Package Name</label>
-            <input
-              {...register("name", { required: "Name is required" })}
-              type="text"
-              placeholder="e.g. Pro Plan"
-              className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4"
-            />
-            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
-          </div>
-
-          {/* Slug */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Slug</label>
-            <input
-              {...register("slug", { required: "Slug is required" })}
-              type="text"
-              placeholder="e.g. pro-plan"
-              className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4"
-            />
-            {errors.slug && <p className="text-red-500 text-sm">{errors.slug.message}</p>}
-          </div>
-
-          {/* Price & Duration */}
+        <form onSubmit={handleSubmit(submit)} className="space-y-6 py-4">
+          {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="font-black text-sm text-[#1E293B]">Price ($)</label>
-              <input
-                {...register("price", { required: "Price is required" })}
+              <Label
+                htmlFor="name"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Package Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                {...register("name", { required: "Name is required" })}
+                id="name"
+                placeholder="e.g. Premium"
+                className="rounded-xl border-slate-200"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-xs">{errors.name.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="slug"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Slug <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                {...register("slug", { required: "Slug is required" })}
+                id="slug"
+                placeholder="e.g. premium"
+                className="rounded-xl border-slate-200"
+              />
+              {errors.slug && (
+                <p className="text-red-500 text-xs">{errors.slug.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Price & Billing */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="price"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Price ($) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                {...register("price", {
+                  required: "Price is required",
+                  min: { value: 0, message: "Price must be positive" },
+                })}
+                id="price"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4"
+                className="rounded-xl border-slate-200"
               />
-              {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+              {errors.price && (
+                <p className="text-red-500 text-xs">{errors.price.message}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <label className="font-black text-sm text-[#1E293B]">Duration</label>
+              <Label
+                htmlFor="billingPeriod"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Billing Period
+              </Label>
               <Controller
-                name="duration"
+                name="billingPeriod"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4 border-none">
-                      <SelectValue placeholder="Select duration" />
+                    <SelectTrigger className="rounded-xl border-slate-200">
+                      <SelectValue placeholder="Select period" />
                     </SelectTrigger>
-                    <SelectContent className="z-[110]">
-                      <SelectItem value="Monthly">Monthly</SelectItem>
-                      <SelectItem value="Yearly">Yearly</SelectItem>
-                      <SelectItem value="Lifetime">Lifetime</SelectItem>
+                    <SelectContent>
+                      {BILLING_PERIODS.map(({ value, label }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -174,233 +357,482 @@ const PackageModal = ({ isEdit, defaultValues, onClose, onSubmit, isSaving }) =>
             </div>
           </div>
 
-          {/* Type */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Package Type</label>
-            <Controller
-              name="type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4 border-none">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[110]">
-                    <SelectItem value="Basic">Basic</SelectItem>
-                    <SelectItem value="Standard">Standard</SelectItem>
-                    <SelectItem value="Premium">Premium</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Description</label>
-            <textarea
-              {...register("description")}
-              placeholder="Brief description of this package..."
-              rows={3}
-              className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4 resize-none"
-            />
-          </div>
-
-          {/* Badge (file) */}
-          <FileUpload
-            name="badge"
-            control={control}
-            caption="Upload Badge Image"
-            accept="image/*"
-            maxSize={100 * 1024 * 1024}
-            error={errors.badge?.message}
-            rules={{ required: isEdit ? false : "Badge is required" }}
-            defaultValue={isEdit ? defaultValues?.badge : undefined}
-          />
-
-          {/* Features */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Features</label>
-            <FeatureTags features={features} onRemove={removeFeature} />
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={featInput}
-                onChange={(e) => setFeatInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFeature(); } }}
-                placeholder="Add a feature and press +"
-                className="flex-1 bg-[#F0F0F0] rounded-xl px-5 py-3 text-sm"
-              />
-              <button
-                type="button"
-                onClick={addFeature}
-                className="bg-[#FFC12D] text-white rounded-xl px-4 py-2 text-xl font-bold hover:bg-[#FFB800]"
+          {/* Bonuses */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="pulsePointsBonus"
+                className="text-sm font-semibold text-slate-700"
               >
-                +
-              </button>
+                Pulse Points Bonus (%)
+              </Label>
+              <Input
+                {...register("pulsePointsBonus")}
+                id="pulsePointsBonus"
+                type="number"
+                placeholder="0"
+                className="rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="marketplaceDiscount"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Marketplace Discount (%)
+              </Label>
+              <Input
+                {...register("marketplaceDiscount")}
+                id="marketplaceDiscount"
+                type="number"
+                placeholder="0"
+                className="rounded-xl border-slate-200"
+              />
             </div>
           </div>
 
-          {/* Status */}
-          <div className="space-y-2">
-            <label className="font-black text-sm text-[#1E293B]">Status</label>
-            <Toggle value={isActive} onChange={setIsActive} />
+          {/* Badge Section */}
+          <div className="space-y-4">
+            <Label className="text-sm font-semibold text-slate-700">
+              Badge
+            </Label>
+            <div className=" gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="badgeDisplayName"
+                  className="text-xs text-slate-500"
+                >
+                  Display Name
+                </Label>
+                <Input
+                  {...register("badgeDisplayName")}
+                  id="badgeDisplayName"
+                  placeholder="e.g. Premium"
+                  className="rounded-xl border-slate-200"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-4 pt-4">
-            <button
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-500">Badge Icon</Label>
+              <FileUpload
+                name="badgeIcon"
+                control={control}
+                caption="Upload Image"
+                accept="image/*"
+                defaultValue={defaultValues?.badge?.icon}
+              />
+            </div>
+          </div>
+          {/* Boolean Toggles */}
+          <div className="space-y-4">
+            <Label className="text-sm font-semibold text-slate-700">
+              Features & Permissions
+            </Label>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl">
+              {BOOLEAN_FIELDS.map(({ key, label }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <Label
+                    htmlFor={key}
+                    className="text-sm text-slate-600 cursor-pointer"
+                  >
+                    {label}
+                  </Label>
+                  <Switch
+                    id={key}
+                    checked={!!flags[key]}
+                    onCheckedChange={(checked) => updateFlag(key, checked)}
+                    className="data-[state=checked]:bg-amber-500"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Status Toggle */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+            <Label
+              htmlFor="isActive"
+              className="text-sm font-semibold text-slate-700 cursor-pointer"
+            >
+              Active Status
+            </Label>
+            <Switch
+              id="isActive"
+              checked={isActive}
+              onCheckedChange={setIsActive}
+              className="data-[state=checked]:bg-amber-500"
+            />
+          </div>
+
+          {/* Features List */}
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold text-slate-700">
+              Features List
+            </Label>
+            <div className="flex flex-wrap gap-2 min-h-[40px]">
+              {features.length === 0 ? (
+                <p className="text-sm text-slate-400 italic">
+                  No features added yet
+                </p>
+              ) : (
+                features.map((feature, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="bg-amber-100 text-amber-800 border-0 px-3 py-1.5 text-sm flex items-center gap-2"
+                  >
+                    {feature}
+                    <button
+                      type="button"
+                      onClick={() => removeFeature(index)}
+                      className="hover:text-amber-900"
+                      aria-label={`Remove ${feature}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newFeature}
+                onChange={(e) => setNewFeature(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Add a feature..."
+                className="rounded-xl border-slate-200 flex-1"
+              />
+              <Button
+                type="button"
+                onClick={addFeature}
+                className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
+            <Button
               type="submit"
               disabled={isSaving}
-              className="flex-1 py-4 bg-[#FFC12D] text-white rounded-2xl font-black hover:bg-[#FFB800] transition-colors"
+              className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl py-2.5"
             >
-              {isSaving ? "Saving..." : isEdit ? "Update Package" : "Add Package"}
-            </button>
-            <button
+              {isSaving
+                ? "Saving..."
+                : isEdit
+                  ? "Update Package"
+                  : "Add Package"}
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
-              className="flex-1 py-4 border-2 rounded-2xl font-semibold"
+              className="flex-1 rounded-xl py-2.5 border-slate-200"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
+// ===================== PAGE =====================
 const SubscriptionPackages = () => {
-  const { data: packages, isLoading } = useGetPackagesQuery();
+  const { data, isLoading, error } = useGetPackagesQuery();
   const [createPackage, { isLoading: isCreating }] = useCreatePackageMutation();
   const [updatePackage, { isLoading: isUpdating }] = useUpdatePackageMutation();
   const [deletePackage, { isLoading: isDeleting }] = useDeletePackageMutation();
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [updateTarget, setUpdateTarget] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingPackage, setEditingPackage] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const handleCreate = async (data) => {
+  const isSaving = isCreating || isUpdating;
+
+  const packages = useMemo(() => data?.data || [], [data]);
+
+  const openAddModal = useCallback(() => {
+    setEditingPackage(null);
+    setModalOpen(true);
+  }, []);
+
+  const openEditModal = useCallback((pkg) => {
+    setEditingPackage(pkg);
+    setModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setEditingPackage(null);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (formData) => {
+      try {
+        const fd = buildFormData(formData);
+
+        if (editingPackage) {
+          await updatePackage({ id: editingPackage._id, data: fd }).unwrap();
+          toast.success("Package updated successfully");
+        } else {
+          await createPackage(fd).unwrap();
+          toast.success("Package created successfully");
+        }
+
+        closeModal();
+      } catch (err) {
+        toast.error(err?.data?.message || "An error occurred");
+      }
+    },
+    [editingPackage, updatePackage, createPackage, closeModal],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+
     try {
-      const formData = buildFormData(data);
-      const res = await createPackage(formData);
-      if (res?.error) return toast.error(res.error.data?.message || "Creation failed");
-      if (res.data?.success) { toast.success(res.data.message); setShowAddModal(false); }
-    } catch (err) { console.error(err); }
-  };
+      await deletePackage({ id: deleteTarget._id }).unwrap();
+      toast.success("Package deleted successfully");
+      setDeleteTarget(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to delete package");
+    }
+  }, [deleteTarget, deletePackage]);
 
-  const handleUpdate = async (data) => {
-    try {
-      const formData = buildFormData(data);
-      const res = await updatePackage({ id: updateTarget._id, data: formData });
-      if (res?.error) return toast.error(res.error.data?.message || "Update failed");
-      if (res.data?.success) { toast.success(res.data.message); setShowUpdateModal(false); }
-    } catch (err) { console.error(err); }
-  };
+  if (isLoading) return <Loader />;
 
-  const handleDelete = async (id) => {
-    try {
-      const res = await deletePackage(id);
-      if (res?.error) return toast.error(res.error.data?.message || "Deletion failed");
-      if (res.data?.success) toast.success(res.data.message);
-    } catch (err) { console.error(err); }
-  };
-
-  if (isLoading || isDeleting) return <Loader />;
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-6 lg:p-10 flex flex-col items-center justify-center">
+        <p className="text-red-600 mb-4 font-medium">Failed to load packages</p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-10 bg-[#F8FAFC]">
+    <div className="min-h-screen bg-slate-50 p-6 lg:p-10">
       {/* Header */}
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-3xl font-black text-[#1E293B]">Subscription Packages</h2>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-8 py-3.5 bg-[#FFC12D] text-white rounded-xl font-black shadow-xl shadow-yellow-400/20 hover:bg-[#FFB800] transition-all"
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">
+            Subscription Packages
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Manage your subscription tiers and pricing
+          </p>
+        </div>
+        <Button
+          onClick={openAddModal}
+          className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-amber-500/25"
         >
-          <Plus size={22} /> Add New Package
-        </button>
+          <Plus className="h-5 w-5 mr-2" />
+          Add Package
+        </Button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50 border-b border-gray-100">
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Package</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Badge</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Slug</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Price</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Duration</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Type</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Status</TableHead>
-              <TableHead className="px-10 py-5 font-black text-[#1E293B] text-sm">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {packages?.data?.map((pkg, i) => (
-              <TableRow key={i}>
-                <TableCell className="px-10 py-6">
-                  <div className="font-black text-[#1E293B]">{pkg.name}</div>
-                  <div className="text-xs text-slate-400 mt-1">{pkg.features?.length} features</div>
-                </TableCell>
-                <TableCell className="px-10 py-6">
-                  {pkg.badge && (
-                    <img src={pkg.badge} alt="badge" className="w-10 h-10 rounded-xl object-cover" />
-                  )}
-                </TableCell>
-                <TableCell className="px-10 py-6 text-slate-500 text-sm">{pkg.slug}</TableCell>
-                <TableCell className="px-10 py-6 font-black text-[#1E293B]">
-                  ${parseFloat(pkg.price).toFixed(2)}
-                </TableCell>
-                <TableCell className="px-10 py-6 text-slate-500">{pkg.duration}</TableCell>
-                <TableCell className="px-10 py-6">
-                  <span
-                    className="px-4 py-1 rounded-full text-xs font-bold"
-                    style={{ background: typeColor(pkg.type), color: typeText(pkg.type) }}
-                  >
-                    {pkg.type}
-                  </span>
-                </TableCell>
-                <TableCell className="px-10 py-6">
-                  <span className={`px-4 py-1 rounded-full text-xs font-bold ${pkg.status ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"}`}>
-                    {pkg.status ? "Active" : "Inactive"}
-                  </span>
-                </TableCell>
-                <TableCell className="px-10 py-6">
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => { setUpdateTarget(pkg); setShowUpdateModal(true); }}
-                      className="text-gray-800 hover:text-gray-600"
-                    >
-                      <Edit2 size={20} />
-                    </button>
-                    <button onClick={() => handleDelete(pkg._id)} className="text-red-500 hover:text-red-700">
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                </TableCell>
+      {/* Table Container */}
+      {packages.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center">
+          <p className="text-slate-500 mb-4">No packages found</p>
+          <Button
+            onClick={openAddModal}
+            className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl"
+          >
+            Create your first package
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="font-semibold text-slate-700 py-4 px-6">
+                  Package
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4">
+                  Price
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4">
+                  Billing
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4 text-center">
+                  Ad-Free
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4 text-center">
+                  Chat Badge
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4 text-center">
+                  VIP Access
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4">
+                  Bonuses
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-4">
+                  Status
+                </TableHead>
+                <TableHead className="font-semibold text-slate-700 py-4 px-6 text-right">
+                  Actions
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {packages.map((pkg) => {
+                const tierStyle = getTierStyles(pkg.name);
+                return (
+                  <TableRow key={pkg._id} className="hover:bg-slate-50/50">
+                    <TableCell className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        {pkg.badge?.icon ? (
+                          <img
+                            src={pkg.badge.icon}
+                            alt={pkg.badge.displayName}
+                            className="w-10 h-10 rounded-xl object-cover border border-slate-200"
+                          />
+                        ) : (
+                          <div
+                            className={`w-10 h-10 rounded-xl ${tierStyle.bg} ${tierStyle.border} border flex items-center justify-center ${tierStyle.text}`}
+                          >
+                            {tierStyle.icon}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-slate-900">
+                            {pkg.name}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {pkg.features?.length || 0} features
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-4">
+                      <span className="font-bold text-slate-900 text-lg">
+                        ${pkg.price.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-4 px-4">
+                      <span className="text-slate-600 capitalize">
+                        {pkg.billingPeriod}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-4 px-4 text-center">
+                      {pkg.adFree ? (
+                        <Check className="h-5 w-5 text-emerald-500 mx-auto" />
+                      ) : (
+                        <X className="h-5 w-5 text-slate-300 mx-auto" />
+                      )}
+                    </TableCell>
+                    <TableCell className="py-4 px-4 text-center">
+                      {pkg.chatBadge ? (
+                        <Check className="h-5 w-5 text-emerald-500 mx-auto" />
+                      ) : (
+                        <X className="h-5 w-5 text-slate-300 mx-auto" />
+                      )}
+                    </TableCell>
+                    <TableCell className="py-4 px-4 text-center">
+                      {pkg.vipRoomAccess ? (
+                        <Check className="h-5 w-5 text-emerald-500 mx-auto" />
+                      ) : (
+                        <X className="h-5 w-5 text-slate-300 mx-auto" />
+                      )}
+                    </TableCell>
+                    <TableCell className="py-4 px-4">
+                      <div className="space-y-1">
+                        {pkg.pulsePointsBonus > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-violet-100 text-violet-700 border-0 text-xs"
+                          >
+                            +{pkg.pulsePointsBonus}% Points
+                          </Badge>
+                        )}
+                        {pkg.marketplaceDiscount > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-emerald-100 text-emerald-700 border-0 text-xs ml-1"
+                          >
+                            {pkg.marketplaceDiscount}% Off
+                          </Badge>
+                        )}
+                        {pkg.pulsePointsBonus === 0 &&
+                          pkg.marketplaceDiscount === 0 && (
+                            <span className="text-slate-400 text-sm">—</span>
+                          )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-4">
+                      <Badge
+                        variant={pkg.isActive ? "default" : "secondary"}
+                        className={
+                          pkg.isActive
+                            ? "bg-emerald-100 text-emerald-700 border-0"
+                            : "bg-slate-100 text-slate-500 border-0"
+                        }
+                      >
+                        {pkg.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditModal(pkg)}
+                          className="h-9 w-9 text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                          aria-label={`Edit ${pkg.name}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteTarget(pkg)}
+                          className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          aria-label={`Delete ${pkg.name}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
-      {showAddModal && (
+      {/* Add/Edit Modal */}
+      {modalOpen && (
         <PackageModal
-          isEdit={false}
-          onClose={() => setShowAddModal(false)}
-          onSubmit={handleCreate}
-          isSaving={isCreating}
+          isEdit={!!editingPackage}
+          defaultValues={editingPackage}
+          onClose={closeModal}
+          onSubmit={handleSubmit}
+          isSaving={isSaving}
         />
       )}
 
-      {showUpdateModal && updateTarget && (
-        <PackageModal
-          isEdit={true}
-          defaultValues={updateTarget}
-          onClose={() => setShowUpdateModal(false)}
-          onSubmit={handleUpdate}
-          isSaving={isUpdating}
+      {/* Delete Confirmation */}
+      {deleteTarget && (
+        <DeleteConfirmDialog
+          packageName={deleteTarget.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>
